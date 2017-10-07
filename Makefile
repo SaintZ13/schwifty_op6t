@@ -327,11 +327,6 @@ HOSTCXX      = g++
 HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -std=gnu89 $(GEN_OPT_FLAGS)
 HOSTCXXFLAGS = -O2 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT) -fdeclone-ctor-dtor
 
-ifeq ($(shell $(HOSTCC) -v 2>&1 | grep -c "clang version"), 1)
-HOSTCFLAGS  += -Wno-unused-value -Wno-unused-parameter \
-		-Wno-missing-field-initializers -fno-delete-null-pointer-checks
-endif
-
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
 
