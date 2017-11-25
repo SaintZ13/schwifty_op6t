@@ -1,6 +1,23 @@
 ====================
      2019-01-08    
 ====================
+780134b  scripts: Disable some noisy dtc warnings  [Nathan Chancellor]
+b8709ec  UPSTREAM: scripts/dtc: Update to upstream version v1.4.6-9-gaadd0b65c987  [Rob Herring]
+e18be7e  UPSTREAM: scripts/dtc: Update to upstream version v1.4.5-6-gc1e55a5513e9  [Rob Herring]
+452c81c  UPSTREAM: scripts/dtc: Update to upstream version v1.4.5-3-gb1a60033c110  [Rob Herring]
+5f08ba9  UPSTREAM: scripts/dtc: add fdt_overlay.c and fdt_addresses.c to sync script  [Rob Herring]
+8ddadbc  UPSTREAM: scripts/dtc: dtx_diff - 2nd update of include dts paths to match build  [Frank Rowand]
+01b7689  UPSTREAM: scripts/dtc: fix '%zx' warning  [Russell King]
+e6e136f  UPSTREAM: scripts/dtc: dtx_diff - update include dts paths to match build  [Frank Rowand]
+f4a1e4f  UPSTREAM: scripts/dtc: dtx_diff - Show real file names in diff header  [Geert Uytterhoeven]
+e6d7b15  UPSTREAM: devicetree: Move include prefixes from arch to separate directory  [Olof Johansson]
+5c3c9df  UPSTREAM: scripts: Switch to more portable Perl shebang  [Kamil Rytarowski]
+3da6a72  UPSTREAM: dtc: check.c fix compile error  [Shuah Khan]
+e7505b0  UPSTREAM: dtc: update warning settings for new bus and node/property name checks  [Rob Herring]
+28880f9  UPSTREAM: scripts/dtc: Update to upstream version v1.4.4-8-g756ffc4f52f6  [Rob Herring]
+598cae4  UPSTREAM: scripts/dtc: automate getting dtc version and log in update script  [Rob Herring]
+b256b7c  UPSTREAM: scripts/dtc: Update to upstream version 0931cea3ba20  [Rob Herring]
+6e61638  schwifty: other stuff  [SaintZ13]
 5a0e19c  hwmon: qpnp-adc: Fix enum conversion warning  [Nathan Chancellor]
 fe8414b  icnss: Fix enum-conversion warning from Clang  [Nathan Chancellor]
 45c5a41  thermal: tsens: Fix enum-conversion warnings  [Nathan Chancellor]
