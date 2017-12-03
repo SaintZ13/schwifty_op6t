@@ -784,7 +784,7 @@ else
 ifdef CONFIG_PROFILE_ALL_BRANCHES
 KBUILD_CFLAGS	+= -O2 $(call cc-disable-warning,maybe-uninitialized,)
 else
-KBUILD_CFLAGS   += -O2 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT) 
+KBUILD_CFLAGS   += -O3 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT) 
 endif
 endif
 
