@@ -1,6 +1,18 @@
 ====================
-     2019-01-08    
+     2019-01-09    
 ====================
+da3af0c  oneplus: oem_trace: Fix enum-conversion warnings  [Nathan Chancellor]
+2b00920  input: synaptics_driver_s3320: Fix misleading indentation warning  [Nathan Chancellor]
+e734c66  input: fpc1020: Remove duplicate const specifier  [Nathan Chancellor]
+a09af94  crypto: msm: Fix bool operation warning  [Nathan Chancellor]
+901d6a6  Makefile: Use O3 for Clang  [Nathan Chancellor]
+3959704  BACKPORT: kbuild: clang: remove crufty HOSTCFLAGS  [Nick Desaulniers]
+f2cf4ca  UPSTREAM: Kbuild: use -fshort-wchar globally  [Arnd Bergmann]
+f285d16  Revert [FIX] "xen/efi: don't use -fshort-wchar"  [Nathan Chancellor]
+ce522eff  ANDROID: Kbuild, LLVMLinux: disable clang -Wpointer-bool-conversion  [Greg Hackmann]
+3428b76  kernel: Add CC_WERROR config to turn warnings into errors  [Chris Fries]
+292d375  opchain: Build into the kernel image  [Nathan Chancellor]
+5a8b8b9  schwifty: some changes  [Nathan Chancellor]
 780134b  scripts: Disable some noisy dtc warnings  [Nathan Chancellor]
 b8709ec  UPSTREAM: scripts/dtc: Update to upstream version v1.4.6-9-gaadd0b65c987  [Rob Herring]
 e18be7e  UPSTREAM: scripts/dtc: Update to upstream version v1.4.5-6-gc1e55a5513e9  [Rob Herring]
@@ -156,6 +168,10 @@ eef9a8d  Fix version name  [flar2]
 49e93b8  update .gitignore  [flar2]
 
 ====================
+     2019-01-08    
+====================
+
+====================
      2019-01-07    
 ====================
 
@@ -178,15 +194,11 @@ eef9a8d  Fix version name  [flar2]
 ====================
      2019-01-02    
 ====================
-
-====================
-     2019-01-01    
-====================
 eceb2c2  Merge 4.9.148 into oneplus/SDM845_P_9.0  [Nathan Chancellor]
 693c142  Merge remote-tracking branch 'upstream/oneplus/SDM845_P_9.0' into oneplus/SDM845_P_9.0  [Nathan Chancellor]
 
 ====================
-     2018-12-31    
+     2019-01-01    
 ====================
 5f15818  Synchronize codes for OnePlus 6T OxygenOS 9.0.11  [casey.song]
 acb4e19  Optimizing the stability of display  [guozhiming]
@@ -194,11 +206,11 @@ acb4e19  Optimizing the stability of display  [guozhiming]
 ee7b177  Optimizing the stability of gsi  [Liu Qinghua]
 
 ====================
-     2018-12-30    
+     2018-12-31    
 ====================
 
 ====================
-     2018-12-29    
+     2018-12-30    
 ====================
 d997488  Linux 4.9.148  [Greg Kroah-Hartman]
 00279b5  drm/ioctl: Fix Spectre v1 vulnerabilities  [Gustavo A. R. Silva]
@@ -225,14 +237,14 @@ e953031  xhci: Don't prevent USB2 bus suspend in state check intended for USB3 o
 f5cecc0  block: break discard submissions into the user defined size  [Jens Axboe]
 
 ====================
+     2018-12-29    
+====================
+
+====================
      2018-12-28    
 ====================
 
 ====================
      2018-12-27    
-====================
-
-====================
-     2018-12-26    
 ====================
 
