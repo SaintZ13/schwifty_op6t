@@ -306,9 +306,6 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
-# HolyDragon Optimization Flags #
-
-
 # Arm64 Architecture Specific GCC Flags
 # fall back to -march=armv8-a in case the compiler isn't compatible
 # with -mcpu and -mtune

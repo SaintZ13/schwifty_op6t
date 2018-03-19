@@ -1,0 +1,176 @@
+====================
+     2019-01-08    
+====================
+51e4c86  schwifty: Let's get Schwifty in here!  [SaintZ13]
+2a6bf0a  wcd934x: add null checks to prevent crash on hardware variants  [flar2]
+f4b852f  wcd934x: add speaker gain settings for 6T  [flar2]
+59aecd6  sweep2sleep: allow disabling vibration  [flar2]
+3ec5216  techpack/: Synchronize codes for OnePlus 6T OxygenOS 9.0.6  [liuhaituo]
+a1e7c9d  wcd934x: remove speaker gain settings for 6T  [flar2]
+4ab8e01  wake_gestures: enable fingerprint and non-stock doubletap2wake  [flar2]
+ea45e4e  leds-qpnp: remove LED control for 6T  [flar2]
+9c7800a  wcd934x: remove headphone gain options for 6T  [flar2]
+b0d00d8  techpack: Synchronize codes for OnePlus 6T OxygenOS 9.0.4  [qiuchangping]
+84ad153  leds-qpnp-haptics: fix merge error  [flar2]
+0cd0bca  kernel: Use the stock config for /proc/config.gz  [Sultan Alsawaf]
+1078397  leds-qpnp-haptics: add separate node for call vibration  [flar2]
+4f0d37a  leds-qpnp-haptics: add separate nodes for tap and notifications  [flar2]
+2b5e856  leds-qpnp-haptic: allow disabling vibration  [flar2]
+dfab878  input: synaptics: s3320: add haptic feedback control sysfs  [engstk]
+f787e81  leds-qpnp-haptics: allow user adjustment  [flar2]
+1e32524  leds-qpnp-haptics: expose vibrator  [flar2]
+e93d879  wcd934x: sound control: reset headphone digital gain to user value  [flar2]
+7dee593  wcd934x: add sound control  [flar2]
+757bf93  techpack: audio: add sources, build inline  [tbalden]
+5ef829b  kcal: pie: fix used pcc setup for sde path  [tbalden]
+f670c44  wake_gestures: update for Pie and add haptic feedback disable option  [flar2]
+9de58f2  OnePlus 6: Wake gestures, sweep2wake and doubletap2wake  [flar2]
+5233349  initramfs: add skip_override parameter  [flar2]
+d4d0929  include: asm-generic: do not hard code HZ to 100  [Alexander Martinz]
+1db5910  dt: remove avb flag for vendor  [Marko Man]
+fc0555d  coretech: opchain: allow builtin  [engstk]
+0be42d7  input: touchscreen: synaptics_driver_s3320: Add back VENDOR_EDIT_OXYGEN  [Nathan Chancellor]
+eae296b  msm_performance: don't limit min and max cpu freq  [flar2]
+ec43cef  fs: sync: Avoid calling fdget without fdput  [Wang Han]
+3241dd0  module: Allow wlan to load  [flar2]
+0ff7faf  sched/boost: Update functions for newer Dynamic Schedtune Boost changes  [joshuous]
+0673783  cpu-boost: Update functions for newer Dynamic Schedtune Boost changes  [joshuous]
+e4c1c25  sched/tune: Switch Dynamic Schedtune Boost to a slot-based tracking system  [joshuous]
+b89b97e  sched/stune: Rename stune_boost() to do_stune_sched_boost()  [joshuous]
+50b283a  sched/tune: Rename dynamic_boost parameter to sched_boost  [joshuous]
+d2f36d6  PM / devfreq: Allow the governors to set the target flag  [Lucille Sylvester]
+b4a03af  PM / devfreq: predef governors update freq when device is resumed  [Vladimir Razgulin]
+3742161  sched/tune: Track active boosts on a per-Schedtune basis  [joshuous]
+dd78888  msm: kgsl: run kgsl-workqueue as a high prio wq  [Francisco Franco]
+c72799a  sched/tune: Reset Dynamic Schedtune Boost only if no more boosts running  [joshuous]
+0528af0  cpu-boost: Reset Dynamic SchedTune Boost only if it is currently active  [joshuous]
+26d9ec6  sched/boost: Perform SchedTune boosting when sched_boost is triggered  [joshuous]
+2c48f48  sched/tune: Introduce stune_boost() function  [joshuous]
+3d1cd96  sched/tune: Refactor do_stune_boost()  [joshuous]
+cc4bbe5  sched/tune: Create dynamic_boost SchedTune parameter  [joshuous]
+268e36d  sched/tune: Rename dynamic_boost_write() to dynamic_boost()  [joshuous]
+a9cd6c4  patch-kernel: more reliable version selection  [Jason A. Donenfeld]
+55da171  patch-kernel: only allow one execution at a time, with others failing open  [Jason A. Donenfeld]
+ae721dc  drm: msm: kcal: hue, saturation, value and contrast adjustments  [flar2]
+61070a7  drm: msm: kcal: export rgb to userspace and clean it up  [Francisco Franco]
+f5152d5  sweep2sleep: adjust sweep height  [flar2]
+c6b2d84  kcal: sde_hw: color proc v4: add RGB bias  [tbalden]
+a93088c  cpu-boost: Implement Dynamic SchedTune Boost v3  [joshuous]
+a83ad52  sched/tune: Add initial support for Dynamic SchedTune Boost  [joshuous]
+9eea7c6  sweep2sleep: disable by default  [flar2]
+b697780  drm-msm-dsi: add backlight min option  [flar2]
+5eab157  sweep2sleep: turn off screen by sweeping over navbar  [flar2]
+4a2082f  leds-qpnp: Notification LED control - V1.1c  [andip71]
+a21b585  leds-qpnp: Notification LED control - V1.1b  [andip71]
+ab782c6  printk: Fix mismatch error  [Nathan Chancellor]
+36131ca  kgsl: Increase priority of RT thread  [Alex Naidis]
+65f14b6  workqueue: change permissions to allow root control of wq_power_efficient toggle  [matthewdalex]
+741ceb3  PM: devfreq: Use high priority workqueue  [myfluxi]
+d350074  proc: Remove additional SafetyNet flags from /proc/cmdline  [Sultanxda]
+291bb91  proc: Remove verifiedbootstate flag from /proc/cmdline  [Sultanxda]
+47125e6  adrenoboost: disable by default  [flar2]
+7b13721  adrenoboost: finetuning algorithm - scale it a bit down  [tbalden]
+3e1bc6c  msm_adreno_tz: add adrenoboost parameter  [flar2]
+af9c885  boeffla_wl_blocker: update to wakelock blocker driver v1.1.0  [andip71]
+af6740a  boeffla_wl_blocker: update to wakelock blocker driver v1.0.1  [andip71]
+137c9c4  boeffla_wl_blocker: add generic wakelock blocker driver v1.0.0  [andip71]
+e9e6e5d  net/wireguard: add wireguard importer  [flar2]
+bd8fd94  cpuidle: don't disable cpuidle when entering suspend  [Tim Murray]
+13f36c0  binfmt_elf.c: use get_random_int() to fix entropy depleting  [Jeff Liu]
+24addd7  AIO: Don't plug the I/O queue in do_io_submit()  [Dave Kleikamp]
+d7d9cd5  maple-iosched: convert to use fb_notifier  [flar2]
+2dcb730  maple-iosched: cast parameters to unsigned_long  [flar2]
+f994fa6  block: add MAPLE I/O scheduler and set it as default  [frap129]
+0207dff  zen-iosched: cast parameters to unsigned long  [flar2]
+7dfc3bd  block: add zen scheduler  [andip71]
+083b243  sio-iosched: cast parameters to unsigned long  [flar2]
+887dacd  SIO: update for linux 3.18  [flar2]
+a2298bf  Added fsync on/off support.  [franciscofranco]
+bec048e  fiops-iosched: update for linux 4.9  [flar2]
+d806bca  FIOPS: update for linux 3.18  [flar2]
+4667793  Add SIO and FIOPS i/o schedulers  [flar2]
+d80acbf  disable crc check  [flar2]
+eef9a8d  Fix version name  [flar2]
+49e93b8  update .gitignore  [flar2]
+
+====================
+     2019-01-07    
+====================
+
+====================
+     2019-01-06    
+====================
+
+====================
+     2019-01-05    
+====================
+
+====================
+     2019-01-04    
+====================
+
+====================
+     2019-01-03    
+====================
+
+====================
+     2019-01-02    
+====================
+
+====================
+     2019-01-01    
+====================
+eceb2c2  Merge 4.9.148 into oneplus/SDM845_P_9.0  [Nathan Chancellor]
+693c142  Merge remote-tracking branch 'upstream/oneplus/SDM845_P_9.0' into oneplus/SDM845_P_9.0  [Nathan Chancellor]
+
+====================
+     2018-12-31    
+====================
+5f15818  Synchronize codes for OnePlus 6T OxygenOS 9.0.11  [casey.song]
+acb4e19  Optimizing the stability of display  [guozhiming]
+2674470  Optimizing the stability of display  [guozhiming]
+ee7b177  Optimizing the stability of gsi  [Liu Qinghua]
+
+====================
+     2018-12-30    
+====================
+
+====================
+     2018-12-29    
+====================
+d997488  Linux 4.9.148  [Greg Kroah-Hartman]
+00279b5  drm/ioctl: Fix Spectre v1 vulnerabilities  [Gustavo A. R. Silva]
+4d5741a  proc/sysctl: don't return ENOMEM on lookup when a table is unregistering  [Ivan Delalande]
+6c976b4  panic: avoid deadlocks in re-entrant console drivers  [Sergey Senozhatsky]
+3926df1  ubifs: Handle re-linking of inodes correctly while recovery  [Richard Weinberger]
+d3741e0  x86/fpu: Disable bottom halves while loading FPU registers  [Sebastian Andrzej Siewior]
+0d5fec5  x86/mtrr: Don't copy uninitialized gentry fields back to userspace  [Colin Ian King]
+dac7314  Drivers: hv: vmbus: Return -EINVAL for the sys files for unopened channels  [Dexuan Cui]
+1d060fe  gpio: max7301: fix driver for use with CONFIG_VMAP_STACK  [Christophe Leroy]
+78d2d27  mmc: omap_hsmmc: fix DMA API warning  [Russell King]
+b102595  mmc: core: Use a minimum 1600ms timeout when enabling CACHE ctrl  [Ulf Hansson]
+71383ff  mmc: core: Allow BKOPS and CACHE ctrl even if no HPI support  [Ulf Hansson]
+68f3ea1  mmc: core: Reset HPI enabled state during re-init and in case of errors  [Ulf Hansson]
+baecfd9  USB: serial: option: add Telit LN940 series  [Jörgen Storvist]
+ce1e78c  USB: serial: option: add Fibocom NL668 series  [Jörgen Storvist]
+8284907  USB: serial: option: add Simcom SIM7500/SIM7600 (MBIM mode)  [Jörgen Storvist]
+673187c  USB: serial: option: add HP lt4132  [Tore Anderson]
+a3c9085  USB: serial: option: add GosunCn ZTE WeLink ME3630  [Jörgen Storvist]
+e953031  xhci: Don't prevent USB2 bus suspend in state check intended for USB3 only  [Mathias Nyman]
+5501175  USB: hso: Fix OOB memory access in hso_probe/hso_get_config_data  [Hui Peng]
+6f59058  ib_srpt: Fix a use-after-free in __srpt_close_all_ch()  [Bart Van Assche]
+5af2d10  block: fix infinite loop if the device loses discard capability  [Mikulas Patocka]
+f5cecc0  block: break discard submissions into the user defined size  [Jens Axboe]
+
+====================
+     2018-12-28    
+====================
+
+====================
+     2018-12-27    
+====================
+
+====================
+     2018-12-26    
+====================
+

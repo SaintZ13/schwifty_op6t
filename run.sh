@@ -27,13 +27,13 @@
 	dc=schwifty_defconfig
 
 # Source Path to kernel tree
-	k=/home/op6
+	k=$HOME/op6
 
 # Source Path to clean(empty) out folder
 	co=$k/out
 
 # Compile Path to out 
-	o="O=/home/op6/out"
+	o="O=$HOME/op6/out"
 
 ############################################################
 # Cleanup
