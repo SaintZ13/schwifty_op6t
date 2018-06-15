@@ -506,6 +506,7 @@ struct binder_priority {
  * @files                 files_struct for process
  *                        (protected by @files_lock)
  * @files_lock            mutex to protect @files
+ *                        (invariant after initialized)
  * @deferred_work_node:   element for binder_deferred_list
  *                        (protected by binder_deferred_lock)
  * @deferred_work:        bitmap of deferred work to perform
@@ -551,7 +552,10 @@ struct binder_proc {
 	int pid;
 	struct task_struct *tsk;
 	struct files_struct *files;
+<<<<<<< HEAD
 	struct mutex files_lock;
+=======
+>>>>>>> 853157d54134... UPSTREAM: Revert "FROMLIST: binder: fix proc->files use-after-free"
 	struct hlist_node deferred_work_node;
 	int deferred_work;
 	bool is_dead;
@@ -948,10 +952,14 @@ static void binder_inc_node_tmpref_ilocked(struct binder_node *node);
 
 static int task_get_unused_fd_flags(struct binder_proc *proc, int flags)
 {
+<<<<<<< HEAD
+=======
+	struct files_struct *files = proc->files;
+>>>>>>> 853157d54134... UPSTREAM: Revert "FROMLIST: binder: fix proc->files use-after-free"
 	unsigned long rlim_cur;
 	unsigned long irqs;
-	int ret;
 
+<<<<<<< HEAD
 	mutex_lock(&proc->files_lock);
 	if (proc->files == NULL) {
 		ret = -ESRCH;
@@ -968,6 +976,18 @@ static int task_get_unused_fd_flags(struct binder_proc *proc, int flags)
 err:
 	mutex_unlock(&proc->files_lock);
 	return ret;
+=======
+	if (files == NULL)
+		return -ESRCH;
+
+	if (!lock_task_sighand(proc->tsk, &irqs))
+		return -EMFILE;
+
+	rlim_cur = task_rlimit(proc->tsk, RLIMIT_NOFILE);
+	unlock_task_sighand(proc->tsk, &irqs);
+
+	return __alloc_fd(files, 0, rlim_cur, flags);
+>>>>>>> 853157d54134... UPSTREAM: Revert "FROMLIST: binder: fix proc->files use-after-free"
 }
 
 /*
@@ -976,10 +996,15 @@ err:
 static void task_fd_install(
 	struct binder_proc *proc, unsigned int fd, struct file *file)
 {
+<<<<<<< HEAD
 	mutex_lock(&proc->files_lock);
 	if (proc->files)
 		__fd_install(proc->files, fd, file);
 	mutex_unlock(&proc->files_lock);
+=======
+	if (proc->files)
+		__fd_install(proc->files, fd, file);
+>>>>>>> 853157d54134... UPSTREAM: Revert "FROMLIST: binder: fix proc->files use-after-free"
 }
 
 /*
@@ -989,11 +1014,17 @@ static long task_close_fd(struct binder_proc *proc, unsigned int fd)
 {
 	int retval;
 
+<<<<<<< HEAD
 	mutex_lock(&proc->files_lock);
 	if (proc->files == NULL) {
 		retval = -ESRCH;
 		goto err;
 	}
+=======
+	if (proc->files == NULL)
+		return -ESRCH;
+
+>>>>>>> 853157d54134... UPSTREAM: Revert "FROMLIST: binder: fix proc->files use-after-free"
 	retval = __close_fd(proc->files, fd);
 	/* can't restart close syscall because file table entry was cleared */
 	if (unlikely(retval == -ERESTARTSYS ||
@@ -1001,8 +1032,12 @@ static long task_close_fd(struct binder_proc *proc, unsigned int fd)
 		     retval == -ERESTARTNOHAND ||
 		     retval == -ERESTART_RESTARTBLOCK))
 		retval = -EINTR;
+<<<<<<< HEAD
 err:
 	mutex_unlock(&proc->files_lock);
+=======
+
+>>>>>>> 853157d54134... UPSTREAM: Revert "FROMLIST: binder: fix proc->files use-after-free"
 	return retval;
 }
 
@@ -4914,9 +4949,13 @@ static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
 	ret = binder_alloc_mmap_handler(&proc->alloc, vma);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	mutex_lock(&proc->files_lock);
 	proc->files = get_files_struct(current);
 	mutex_unlock(&proc->files_lock);
+=======
+	proc->files = get_files_struct(current);
+>>>>>>> 853157d54134... UPSTREAM: Revert "FROMLIST: binder: fix proc->files use-after-free"
 	return 0;
 
 err_bad_arg:
@@ -5200,11 +5239,17 @@ static void binder_deferred_func(struct work_struct *work)
 
 		files = NULL;
 		if (defer & BINDER_DEFERRED_PUT_FILES) {
+<<<<<<< HEAD
 			mutex_lock(&proc->files_lock);
 			files = proc->files;
 			if (files)
 				proc->files = NULL;
 			mutex_unlock(&proc->files_lock);
+=======
+			files = proc->files;
+			if (files)
+				proc->files = NULL;
+>>>>>>> 853157d54134... UPSTREAM: Revert "FROMLIST: binder: fix proc->files use-after-free"
 		}
 
 		if (defer & BINDER_DEFERRED_FLUSH)
