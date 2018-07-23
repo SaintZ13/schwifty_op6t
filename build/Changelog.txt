@@ -1,6 +1,8 @@
 ====================
      2019-01-08    
 ====================
+4f20e15  schwifty: add to gitignore  [SaintZ13]
+5054c21  schwifty: some building changes  [flar2]
 51e4c86  schwifty: Let's get Schwifty in here!  [SaintZ13]
 2a6bf0a  wcd934x: add null checks to prevent crash on hardware variants  [flar2]
 f4b852f  wcd934x: add speaker gain settings for 6T  [flar2]
