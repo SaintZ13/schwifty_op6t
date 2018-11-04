@@ -24,6 +24,7 @@
 #include <linux/kernel.h>
 #include <linux/proc_fs.h>
 #include <linux/hrtimer.h>
+#include <linux/pm_qos.h>
 #include <linux/proc_fs.h>
 #include <linux/interrupt.h>
 #include <linux/regulator/consumer.h>
@@ -46,6 +47,7 @@
 #include <linux/timer.h>
 #include <linux/time.h>
 #include <linux/pm_wakeup.h>
+#include <linux/cpumask.h>
 
 /*modify by morgan.gu for sdm845 */
 #define CONFIG_MSM_RDM_NOTIFY
@@ -461,7 +463,9 @@ static int oem_synaptics_ts_probe(struct i2c_client *client, const struct i2c_de
 	int i;
 	optimize_data.client = client;
 	optimize_data.dev_id = id;
-	optimize_data.workqueue = create_workqueue("tpd_probe_optimize");
+	optimize_data.workqueue = alloc_workqueue("tpd_probe_optimize",
+			    WQ_HIGHPRI | WQ_UNBOUND | WQ_FREEZABLE |
+			    WQ_MEM_RECLAIM, 0);
 	INIT_DELAYED_WORK(&(optimize_data.work), synaptics_ts_probe_func);
 	TPD_ERR("before on cpu [%d]\n",smp_processor_id());
 
@@ -566,6 +570,9 @@ struct synaptics_ts_data {
 	unsigned int fp_aod_cnt;
 	unsigned int unlock_succes;
 	int project_version;
+	unsigned int l2pc_cpus_mask;
+	struct pm_qos_request l2pc_cpus_qos;
+	struct pm_qos_request pm_qos_req_dma;
 	struct work_struct pm_work;
 };
 
@@ -2005,6 +2012,9 @@ static irqreturn_t synaptics_irq_thread_fn(int irq, void *dev_id)
 	if (unlikely(ts->enable_remote))
 		goto END;
 
+	/* prevent CPU from entering deep sleep */
+	pm_qos_update_request(&ts->pm_qos_req_dma, 100);
+
 	synaptics_rmi4_i2c_write_byte(ts->client, 0xff, 0x00);
 	ret = synaptics_rmi4_i2c_read_word(ts->client, F01_RMI_DATA_BASE);
 
@@ -2076,6 +2086,7 @@ static irqreturn_t synaptics_irq_thread_fn(int irq, void *dev_id)
 
 
 END:
+	pm_qos_update_request(&ts->pm_qos_req_dma, PM_QOS_DEFAULT_VALUE);
 
 	return IRQ_HANDLED;
 }
@@ -4745,7 +4756,7 @@ static ssize_t touch_press_status_write(struct file *file, const char __user *bu
 	}
 	else if(ret == 1) {
 		if (0 == ts->gesture_enable)
-			queue_delayed_work(get_base_report, &ts->base_work,msecs_to_jiffies(120));
+			queue_delayed_work(get_base_report, &ts->base_work,msecs_to_jiffies(60));
 		else
 			queue_delayed_work(get_base_report, &ts->base_work,msecs_to_jiffies(1));
 	}
@@ -6034,6 +6045,7 @@ static int synaptics_ts_probe(struct i2c_client *client, const struct i2c_device
 	unsigned long int  CURRENT_FIRMWARE_ID = 0;
 	uint32_t bootloader_mode;
 	uint32_t bootmode;
+	int cpu;
 
 	TPD_ERR("%s  is called\n",__func__);
 
@@ -6196,7 +6208,9 @@ static int synaptics_ts_probe(struct i2c_client *client, const struct i2c_device
 	push_component_info(TOUCH_KEY, ts->fw_id, ts->manu_name);
 	push_component_info(TP, ts->fw_id, ts->manu_name);
 
-	synaptics_wq = create_singlethread_workqueue("synaptics_wq");
+	synaptics_wq = alloc_workqueue("synaptics_wq",
+			    WQ_HIGHPRI | WQ_UNBOUND | WQ_FREEZABLE |
+			    WQ_MEM_RECLAIM, 0);
 	if( !synaptics_wq ){
 		ret = -ENOMEM;
 		goto exit_createworkqueue_failed;
@@ -6205,7 +6219,9 @@ static int synaptics_ts_probe(struct i2c_client *client, const struct i2c_device
 
 
 	memset(baseline,0,sizeof(baseline));
-	get_base_report = create_singlethread_workqueue("get_base_report");
+	get_base_report = alloc_workqueue("get_base_report",
+			    WQ_HIGHPRI | WQ_UNBOUND | WQ_FREEZABLE |
+			    WQ_MEM_RECLAIM, 0);
 	if( !get_base_report ){
 		ret = -ENOMEM;
 		goto exit_createworkqueue_failed;
@@ -6462,6 +6478,11 @@ static int synaptics_ts_remove(struct i2c_client *client)
 	input_free_device(ts->input_dev);
 	kfree(ts);
 	tpd_power(ts,0);
+
+	pm_qos_remove_request(&ts->pm_qos_req_dma);
+	if (ts->l2pc_cpus_mask)
+		pm_qos_remove_request(&ts->l2pc_cpus_qos);
+
 	return 0;
 }
 
