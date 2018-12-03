@@ -22,7 +22,7 @@ ifdef CONFIG_LD_GOLD
 LDFLAGS_vmlinux		+= -Bsymbolic \
 			$(call ld-option, --no-apply-dynamic-relocs)
 else
-LDFLAGS_vmlinux		+= -pie -shared -Bsymbolic \
+LDFLAGS_vmlinux		+= -shared -Bsymbolic -z notext -z norelro \
 			$(call ld-option, --no-apply-dynamic-relocs)
 endif
 endif
