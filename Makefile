@@ -363,7 +363,7 @@ include scripts/Kbuild.include
 
 # Make variables (CC, etc...)
 AS		= $(CROSS_COMPILE)as
-LD		= $(CROSS_COMPILE)ld
+LD		= $(CROSS_COMPILE)ld.bfd
 CC		= $(CROSS_COMPILE)gcc -g0
 LDGOLD		= $(CROSS_COMPILE)ld.gold
 CPP		= $(CC) -E
@@ -390,6 +390,9 @@ CFLAGS_KERNEL	= $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)
 AFLAGS_KERNEL	= $(CFLAGS_KERNEL)
 LDFLAGS_vmlinux =
 
+#OPT_FLAGS	:= -funsafe-math-optimizations -ffast-math \
+		   -fvectorize -fslp-vectorize -fopenmp
+
 # Use USERINCLUDE when you must reference the UAPI directories only.
 USERINCLUDE    := \
 		-I$(srctree)/arch/$(hdr-arch)/include/uapi \
@@ -413,8 +416,22 @@ KBUILD_AFLAGS   := -D__ASSEMBLY__
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common -fshort-wchar \
 		   -Werror-implicit-function-declaration \
-		   -Wno-format-security \
+		   -ffast-math -march=armv8.3-a+crypto \
 		   -std=gnu89 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)
+
+## GCC 5.x.x
+KBUILD_CFLAGS += -fdiagnostics-color=always -fdiagnostics-show-option \
+           -Wno-error=implicit-function-declaration -Wno-implicit-function-declaration \
+           -Wno-unused-variable -Wno-unused-function \
+           -Wno-unused-label -Wno-logical-not-parentheses \
+		   -Wno-array-bounds -Wno-error=incompatible-pointer-types \
+           -Wno-incompatible-pointer-types -Wno-pointer-sign \
+           -Wno-parentheses -Wno-nonnull -Wno-attributes -Wno-sizeof-pointer-memaccess
+#G# CC 6.x.x
+KBUILD_CFLAGS += -Wno-shift-overflow 
+#GCC 7.x.x
+KBUILD_CFLAGS += -Wno-duplicate-decl-specifier
+
 KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_AFLAGS_KERNEL :=  $(CFLAGS_KERNEL)
 KBUILD_CFLAGS_KERNEL :=  $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)

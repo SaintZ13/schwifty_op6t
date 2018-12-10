@@ -1,6 +1,18 @@
 ====================
      2019-01-09    
 ====================
+3599181  kbuild: [FIX] add macro for controlling warnings to linux/compiler.h  [Arnd Bergmann]
+18afedb  Kbuild: don't hardcode path to awk in scripts/ld-version.sh  [Felix Fietkau]
+5b72459  kernel: fix linux/spi/spidev.h portability issues with musl  [Felix Fietkau]
+1b77397  linux-3.6: fix portability of some includes files in tools/ used on the host  [Felix Fietkau]
+05e380d  kernel: fix linux 4.9 host tools portability issues  [Felix Fietkau]
+31f559f  kernel: do not build modules.order  [Felix Fietkau]
+7cf3e17  build: [FIX] add a hack for removing non-essential module info  [Felix Fietkau]
+c33450f  kernel: prevent cryptomgr from pulling in useless extra dependencies for tests that are not run  [Felix Fietkau]
+f414a48  UPSTREAM: crypto: acomp - add asynchronous compression api  [Giovanni Cabiddu]
+a998ade  BACKPORT: crypto: zstd - Add zstd support  [Nick Terrell]
+2d3f822  arm64: Crypto: Correct march to 8.2-a  [HolyAngel]
+db01965  schwifty: bs  [HolyAngel]
 2954af7  arm64: Add GCC support for INT128  [Miguel Martinez]
 da3af0c  oneplus: oem_trace: Fix enum-conversion warnings  [Nathan Chancellor]
 2b00920  input: synaptics_driver_s3320: Fix misleading indentation warning  [Nathan Chancellor]
