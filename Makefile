@@ -426,26 +426,6 @@ KBUILD_CFLAGS +=  -fdiagnostics-color=always -fdiagnostics-show-option \
                   -Wno-sizeof-pointer-memaccess -Wno-nonnull \
                   -Wno-error=sizeof-pointer-div -Wno-sizeof-pointer-div
 
-## Lets Seperate GCC Flags from CLANG,
-ifneq ($(cc-name),clang)
-KBUILD_CFLAGS +=  -Wno-error=implicit-function-declaration -Wno-implicit-function-declaration \
-		  -Wno-error=incompatible-pointer-types -Wno-pointer-sign \
-		  --Wno-missing-attributes -Wno-sizeof-pointer-memaccess \
-		  -Wno-shift-overflow
-
-KBUILD_CFLAGS +=  -Wno-switch-unreachable -Wno-maybe-uninitialized \
-                  -Wno-array-bounds -Wno-duplicate-decl-specifier \
-		  -Wno-stringop-overflow -Wno-misleading-indentation \
-		  -Wno-unused-const-variable -Wno-format-truncation \
-		  -Wno-int-in-bool-context -Wno-format-overflow \
-		  -Wno-tautological-compare -Wno-error=misleading-indentation \
-                  -Wno-memset-transposed-args -Wno-bool-compare \
-		  -Wno-logical-not-parentheses -Wno-discarded-array-qualifiers \
-		  -Wno-attributes -Wno-packed-not-aligned -Wno-stringop-truncation \
-		  -mcpu=cortex-a73.cortex-a53 -mtune=cortex-a73.cortex-a53 \
-		  -Wno-bool-operation -Wno-memset-elt-size
-endif
-
 KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_AFLAGS_KERNEL :=  $(CFLAGS_KERNEL)
 KBUILD_CFLAGS_KERNEL :=  $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)

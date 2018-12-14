@@ -1,6 +1,19 @@
 ====================
      2019-01-09    
 ====================
+1998eb0  schwifty: [Makefile] Cleanup Makefile Flags and Seperate GCC/CLANG Flags  [SaintZ13]
+4b414a9  [arm64] [Makefile] LD_GOLD [FIX Error: fatal error: -shared and -pie are incompatible]  [Eliminater74]
+2b4c99e  [Makefile] Minor Fixes: Flags:  [Eliminater74]
+199ece60  [SafeStack] [FIX] add support for clang SafeStack  [Sami Tolvanen]
+7b77fa4  ANDROID: [FIX] Kbuild, LLVMLinux: allow overriding clang target triple  [Greg Hackmann]
+a034445  Kbuild: [FIX] add config option to force ld.gold linker  [kdrag0n]
+b14655c  [Makefile] Add GCC 9.x Flag Fixes:  [Eliminater74]
+3c08732  [Makefile] Turn on Ccache:  [Eliminater74]
+d465856  [Makefile] Add ccache:  [Eliminater74]
+26560c6  schwifty: makefile fixes  [SaintZ13]
+ae07f23  [Makefile] Change this for CLANG:  [Eliminater74]
+9e246b3  [Makefile] Update: Optmized More:  [Eliminater74]
+3121bc5  compiler-gcc: [FIX] optimize inlining  [kdrag0n]
 3599181  kbuild: [FIX] add macro for controlling warnings to linux/compiler.h  [Arnd Bergmann]
 18afedb  Kbuild: don't hardcode path to awk in scripts/ld-version.sh  [Felix Fietkau]
 5b72459  kernel: fix linux/spi/spidev.h portability issues with musl  [Felix Fietkau]
@@ -110,6 +123,10 @@ e93d879  wcd934x: sound control: reset headphone digital gain to user value  [fl
 7dee593  wcd934x: add sound control  [flar2]
 757bf93  techpack: audio: add sources, build inline  [tbalden]
 5ef829b  kcal: pie: fix used pcc setup for sde path  [tbalden]
+
+====================
+     2019-01-08    
+====================
 f670c44  wake_gestures: update for Pie and add haptic feedback disable option  [flar2]
 9de58f2  OnePlus 6: Wake gestures, sweep2wake and doubletap2wake  [flar2]
 5233349  initramfs: add skip_override parameter  [flar2]
@@ -179,10 +196,6 @@ d806bca  FIOPS: update for linux 3.18  [flar2]
 d80acbf  disable crc check  [flar2]
 eef9a8d  Fix version name  [flar2]
 49e93b8  update .gitignore  [flar2]
-
-====================
-     2019-01-08    
-====================
 
 ====================
      2019-01-07    
