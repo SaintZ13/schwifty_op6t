@@ -426,7 +426,7 @@ KBUILD_CFLAGS += -fdiagnostics-color=always -fdiagnostics-show-option \
            -Wno-unused-label -Wno-logical-not-parentheses \
 		   -Wno-array-bounds -Wno-error=incompatible-pointer-types \
            -Wno-incompatible-pointer-types -Wno-pointer-sign \
-           -Wno-parentheses -Wno-nonnull -Wno-attributes -Wno-sizeof-pointer-memaccess
+           -Wno-parentheses -Wno-nonnull -Wno-missing-attributes -Wno-sizeof-pointer-memaccess
 #G# CC 6.x.x
 KBUILD_CFLAGS += -Wno-shift-overflow 
 #GCC 7.x.x
@@ -443,7 +443,6 @@ KBUILD_AFLAGS_MODULE  := -DMODULE $(GEN_OPT_FLAGS)
 KBUILD_CFLAGS_MODULE  := -DMODULE $(GEN_OPT_FLAGS)
 KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
 GCC_PLUGINS_CFLAGS :=
-
 
 # Read KERNELRELEASE from include/config/kernel.release (if it exists)
 KERNELRELEASE = $(shell cat include/config/kernel.release 2> /dev/null)
