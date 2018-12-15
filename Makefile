@@ -431,6 +431,10 @@ KBUILD_CFLAGS += -fdiagnostics-color=always -fdiagnostics-show-option \
 KBUILD_CFLAGS += -Wno-shift-overflow 
 #GCC 7.x.x
 KBUILD_CFLAGS += -Wno-duplicate-decl-specifier
+#GCC 9.x.x	
+KBUILD_CFLAGS += -Wno-misleading-indentation -Wno-stringop-overflow \
+		 -Wno-memset-elt-size -Wno-bool-operation -Wno-maybe-uninitialized\
+                 -Wno-switch-unreachable
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_AFLAGS_KERNEL :=  $(CFLAGS_KERNEL)
