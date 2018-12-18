@@ -1,6 +1,7 @@
 ====================
      2019-01-09    
 ====================
+2954af7  arm64: Add GCC support for INT128  [Miguel Martinez]
 da3af0c  oneplus: oem_trace: Fix enum-conversion warnings  [Nathan Chancellor]
 2b00920  input: synaptics_driver_s3320: Fix misleading indentation warning  [Nathan Chancellor]
 e734c66  input: fpc1020: Remove duplicate const specifier  [Nathan Chancellor]
