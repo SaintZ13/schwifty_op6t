@@ -41,6 +41,19 @@
 #include <linux/cpufreq.h>
 #include <linux/pm_wakeup.h>
 #include <linux/lcd_notify.h>
+#include "../sde/sde_trace.h"
+#include "exposure_adjustment.h"
+
+#define BIG_CPU_NUMBER 4
+#if defined(CONFIG_ARCH_SDM845)
+#define LCDSPEEDUP_BIG_CPU_QOS_FREQ    2649600
+#elif defined(CONFIG_ARCH_MSM8998)
+#define LCDSPEEDUP_BIG_CPU_QOS_FREQ    2361600
+#elif defined(CONFIG_ARCH_MSM8996)
+#define LCDSPEEDUP_BIG_CPU_QOS_FREQ    2073600
+#endif
+#define LCD_QOS_TIMEOUT 1000000
+#define NO_BOOST        0
 
 int backlight_min = 0;
 module_param(backlight_min, int, 0644);
@@ -679,6 +692,17 @@ static int dsi_panel_tx_cmd_set_op(struct dsi_panel *panel,
 
 	if (panel->type == EXT_BRIDGE)
 		return 0;
+
+	if (type == DSI_CMD_SET_SRGB_ON ||
+		type == DSI_CMD_SET_DCI_P3_ON ||
+		type == DSI_CMD_SET_NIGHT_ON ||
+		type == DSI_CMD_SET_ONEPLUS_MODE_ON)
+		ea_panel_mode_ctrl(panel, true);
+	else if ((type > DSI_CMD_SET_POST_TIMING_SWITCH &&
+		type < DSI_CMD_SET_PANEL_SERIAL_NUMBER) ||
+		type > DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF ||
+		type < DSI_CMD_SET_CMD_TO_VID_SWITCH)
+		ea_panel_mode_ctrl(panel, false);
 
 	mode = panel->cur_mode;
 
