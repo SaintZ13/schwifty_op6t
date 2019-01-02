@@ -22,10 +22,6 @@
 #include <drm/drmP.h>
 #include "drm_internal.h"
 
-
-
-
-
 #include <linux/list.h>
 #include <linux/of.h>
 #include <linux/kobject.h>
@@ -33,6 +29,7 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <drm/drm_mipi_dsi.h>
+#include <msm/dsi-staging/exposure_adjustment.h>
 #include <linux/set_os.h>
 
 #define to_drm_minor(d) dev_get_drvdata(d)
@@ -459,6 +456,12 @@ static ssize_t SRGB_store(struct device *dev,
 	if (ret) {
 		pr_err("set sRGB mode(%d) fail\n", srgb_mode);
 	}
+#ifdef CONFIG_EXPOSURE_ADJUSTMENT
+	if (srgb_mode == 0) 
+		ea_panel_set(0);
+	else
+		ea_panel_set(1);
+#endif
 	return count;
 }
 
@@ -499,6 +502,12 @@ static ssize_t DCI_P3_store(struct device *dev,
 	if (ret) {
 		pr_err("set dci-p3 mode(%d) fail\n", dci_p3_mode);
 	}
+#ifdef CONFIG_EXPOSURE_ADJUSTMENT
+	if (dci_p3_mode == 0) 
+		ea_panel_set(0);
+	else
+		ea_panel_set(1);
+#endif
 	return count;
 }
 
@@ -539,6 +548,12 @@ static ssize_t night_mode_store(struct device *dev,
 	if (ret) {
 		pr_err("set night mode(%d) fail\n", night_mode);
 	}
+#ifdef CONFIG_EXPOSURE_ADJUSTMENT
+	if (night_mode == 0) 
+		ea_panel_set(1);
+	else
+		ea_panel_set(0);
+#endif
 	return count;
 }
 
@@ -579,6 +594,12 @@ static ssize_t oneplus_mode_store(struct device *dev,
 	if (ret) {
 		pr_err("set oneplus mode(%d) fail\n", oneplus_mode);
 	}
+#ifdef CONFIG_EXPOSURE_ADJUSTMENT
+	if (oneplus_mode == 0) 
+		ea_panel_set(1);
+	else
+		ea_panel_set(0);
+#endif
 	return count;
 }
 
@@ -619,6 +640,12 @@ static ssize_t adaption_mode_store(struct device *dev,
 	if (ret) {
 		pr_err("set adaption mode(%d) fail\n", adaption_mode);
 	}
+#ifdef CONFIG_EXPOSURE_ADJUSTMENT
+	if (adaption_mode == 0) 
+		ea_panel_set(1);
+	else
+		ea_panel_set(0);
+#endif
 	return count;
 }
 
