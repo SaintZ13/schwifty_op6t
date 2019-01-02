@@ -33,6 +33,7 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <drm/drm_mipi_dsi.h>
+#include <msm/dsi-staging/exposure_adjustment.h>
 
 
 
@@ -496,6 +497,10 @@ static ssize_t night_mode_show(struct device *dev,
 	int night_mode = 0;
 
 	night_mode = dsi_display_get_night_mode(connector);
+	if (night_mode == 0) 
+		ea_panel_set(0);
+	else
+		ea_panel_set(1);
 
 	ret = scnprintf(buf, PAGE_SIZE, "night mode = %d\n"
 											"0--night mode Off\n"
