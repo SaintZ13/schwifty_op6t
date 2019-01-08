@@ -1,7 +1,7 @@
 VERSION = 4
 PATCHLEVEL = 9
 SUBLEVEL = 148
-EXTRAVERSION =
+EXTRAVERSION = -Schwifty_OP6T_vR1
 NAME = Roaring Lionus
 
 # *DOCUMENTATION*
@@ -256,6 +256,11 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 ARCH		?= $(SUBARCH)
 CROSS_COMPILE	?= $(CONFIG_CROSS_COMPILE:"%"=%)
+HDK		:= /home/gcc/
+HDK_TC		:= /home/gcc/bin/
+ARCH		:= arm64
+SUBARCH		:= arm64
+CROSS_COMPILE	:= $(HDK_TC)aarch64-cortex_a75-linux-android-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -301,10 +306,26 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
+# HolyDragon Optimization Flags #
+
+
+# Arm64 Architecture Specific GCC Flags
+# fall back to -march=armv8-a in case the compiler isn't compatible
+# with -mcpu and -mtune
+ARM_ARCH_OPT := \
+	$(call cc-option,-march=armv8.2-a+crypto+fp16+aes+sha2+sha3+sm4,) \
+	-mtune=cortex-a75.cortex-a55 -mcpu=cortex-a75.cortex-a55+crypto+aes+sha2+sha3+sm4 \
+	--param l1-cache-line-size=64 --param l1-cache-size=64 --param l2-cache-size=256 
+
+# Optional Flags
+GEN_OPT_FLAGS := \
+ -DNDEBUG -g0 -pipe \
+ -fomit-frame-pointer 
+
 HOSTCC       = gcc
 HOSTCXX      = g++
-HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
-HOSTCXXFLAGS = -O2
+HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -std=gnu89 $(GEN_OPT_FLAGS)
+HOSTCXXFLAGS = -O2 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT) -fdeclone-ctor-dtor
 
 ifeq ($(shell $(HOSTCC) -v 2>&1 | grep -c "clang version"), 1)
 HOSTCFLAGS  += -Wno-unused-value -Wno-unused-parameter \
@@ -348,13 +369,13 @@ include scripts/Kbuild.include
 # Make variables (CC, etc...)
 AS		= $(CROSS_COMPILE)as
 LD		= $(CROSS_COMPILE)ld
-REAL_CC		= $(CROSS_COMPILE)gcc
+CC		= $(CROSS_COMPILE)gcc -g0
 LDGOLD		= $(CROSS_COMPILE)ld.gold
 CPP		= $(CC) -E
 AR		= $(CROSS_COMPILE)ar
 NM		= $(CROSS_COMPILE)nm
 STRIP		= $(CROSS_COMPILE)strip
-OBJCOPY		= $(CROSS_COMPILE)objcopy
+OBJCOPY		= $(CROSS_COMPILE)objcopy -g --strip-debug --strip-unneeded
 OBJDUMP		= $(CROSS_COMPILE)objdump
 AWK		= awk
 GENKSYMS	= scripts/genksyms/genksyms
@@ -364,18 +385,14 @@ PERL		= perl
 PYTHON		= python
 CHECK		= sparse
 
-# Use the wrapper for the compiler.  This wrapper scans for new
-# warnings and causes the build to stop upon encountering them
-CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
-
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
 NOSTDINC_FLAGS  =
 CFLAGS_MODULE   =
 AFLAGS_MODULE   =
-LDFLAGS_MODULE  =
-CFLAGS_KERNEL	=
-AFLAGS_KERNEL	=
+LDFLAGS_MODULE  = --strip-debug
+CFLAGS_KERNEL	= $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT) 
+AFLAGS_KERNEL	= $(CFLAGS_KERNEL)
 LDFLAGS_vmlinux =
 
 # Use USERINCLUDE when you must reference the UAPI directories only.
@@ -402,12 +419,12 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common -fshort-wchar \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
-		   -std=gnu89
+		   -std=gnu89 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)
 KBUILD_CPPFLAGS := -D__KERNEL__
-KBUILD_AFLAGS_KERNEL :=
-KBUILD_CFLAGS_KERNEL :=
-KBUILD_AFLAGS_MODULE  := -DMODULE
-KBUILD_CFLAGS_MODULE  := -DMODULE
+KBUILD_AFLAGS_KERNEL :=  $(CFLAGS_KERNEL)
+KBUILD_CFLAGS_KERNEL :=  $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)
+KBUILD_AFLAGS_MODULE  := -DMODULE $(GEN_OPT_FLAGS)
+KBUILD_CFLAGS_MODULE  := -DMODULE $(GEN_OPT_FLAGS)
 KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
 GCC_PLUGINS_CFLAGS :=
 
@@ -753,7 +770,7 @@ else
 ifdef CONFIG_PROFILE_ALL_BRANCHES
 KBUILD_CFLAGS	+= -O2 $(call cc-disable-warning,maybe-uninitialized,)
 else
-KBUILD_CFLAGS   += -O2
+KBUILD_CFLAGS   += -O2 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT) 
 endif
 endif
 
@@ -771,19 +788,19 @@ endif
 
 include scripts/Makefile.gcc-plugins
 
-ifdef CONFIG_READABLE_ASM
+#ifdef CONFIG_READABLE_ASM
 # Disable optimizations that make assembler listings hard to read.
 # reorder blocks reorders the control in the function
 # ipa clone creates specialized cloned functions
 # partial inlining inlines only parts of functions
-KBUILD_CFLAGS += $(call cc-option,-fno-reorder-blocks,) \
-                 $(call cc-option,-fno-ipa-cp-clone,) \
-                 $(call cc-option,-fno-partial-inlining)
-endif
+#KBUILD_CFLAGS += $(call cc-option,-fno-reorder-blocks,) \
+#                 $(call cc-option,-fno-ipa-cp-clone,) \
+#                 $(call cc-option,-fno-partial-inlining)
+#endif
 
-ifneq ($(CONFIG_FRAME_WARN),0)
-KBUILD_CFLAGS += $(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN})
-endif
+# ifneq ($(CONFIG_FRAME_WARN),0)
+# KBUILD_CFLAGS += $(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN})
+# endif
 
 # This selects the stack protector compiler flag. Testing it is delayed
 # until after .config has been reprocessed, in the prepare-compiler-check
@@ -807,28 +824,28 @@ ifdef CONFIG_CC_STACKPROTECTOR
 endif
 KBUILD_CFLAGS += $(stackp-flag)
 
-ifdef CONFIG_FRAME_POINTER
-KBUILD_CFLAGS	+= -fno-omit-frame-pointer -fno-optimize-sibling-calls
-else
+#ifdef CONFIG_FRAME_POINTER
+#KBUILD_CFLAGS	+= -fno-omit-frame-pointer -fno-optimize-sibling-calls
+#else
 # Some targets (ARM with Thumb2, for example), can't be built with frame
 # pointers.  For those, we don't have FUNCTION_TRACER automatically
 # select FRAME_POINTER.  However, FUNCTION_TRACER adds -pg, and this is
 # incompatible with -fomit-frame-pointer with current GCC, so we don't use
 # -fomit-frame-pointer with FUNCTION_TRACER.
-ifndef CONFIG_FUNCTION_TRACER
+# ifndef CONFIG_FUNCTION_TRACER
 KBUILD_CFLAGS	+= -fomit-frame-pointer
-endif
-endif
+# endif
+# endif
 
 KBUILD_CFLAGS   += $(call cc-option, -fno-var-tracking-assignments)
 
 ifdef CONFIG_DEBUG_INFO
 ifdef CONFIG_DEBUG_INFO_SPLIT
-KBUILD_CFLAGS   += $(call cc-option, -gsplit-dwarf, -g)
+KBUILD_CFLAGS   += $(call cc-option, -gsplit-dwarf, -g0)
 else
-KBUILD_CFLAGS	+= -g
+KBUILD_CFLAGS	+= -g0
 endif
-KBUILD_AFLAGS	+= -Wa,-gdwarf-2
+KBUILD_AFLAGS	+= -Wa,-g0
 endif
 ifdef CONFIG_DEBUG_INFO_DWARF4
 KBUILD_CFLAGS	+= $(call cc-option, -gdwarf-4,)
@@ -839,23 +856,19 @@ KBUILD_CFLAGS 	+= $(call cc-option, -femit-struct-debug-baseonly) \
 		   $(call cc-option,-fno-var-tracking)
 endif
 
-ifdef CONFIG_FUNCTION_TRACER
-ifndef CC_FLAGS_FTRACE
-CC_FLAGS_FTRACE := -pg
-endif
-export CC_FLAGS_FTRACE
-ifdef CONFIG_HAVE_FENTRY
-CC_USING_FENTRY	:= $(call cc-option, -mfentry -DCC_USING_FENTRY)
-endif
-KBUILD_CFLAGS	+= $(CC_FLAGS_FTRACE) $(CC_USING_FENTRY)
-KBUILD_AFLAGS	+= $(CC_USING_FENTRY)
-ifdef CONFIG_DYNAMIC_FTRACE
-	ifdef CONFIG_HAVE_C_RECORDMCOUNT
-		BUILD_C_RECORDMCOUNT := y
-		export BUILD_C_RECORDMCOUNT
-	endif
-endif
-endif
+# ifdef CONFIG_FUNCTION_TRACER
+# ifdef CONFIG_HAVE_FENTRY
+# CC_USING_FENTRY	:= $(call cc-option, -mfentry -DCC_USING_FENTRY)
+# endif
+# KBUILD_CFLAGS	+= -pg $(CC_USING_FENTRY)
+# KBUILD_AFLAGS	+= $(CC_USING_FENTRY)
+# ifdef CONFIG_DYNAMIC_FTRACE
+# 	ifdef CONFIG_HAVE_C_RECORDMCOUNT
+# 		BUILD_C_RECORDMCOUNT := y
+# 		export BUILD_C_RECORDMCOUNT
+# 	endif
+# endif
+# endif
 
 # We trigger additional mismatches with less inlining
 ifdef CONFIG_DEBUG_SECTION_MISMATCH
