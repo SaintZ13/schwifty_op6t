@@ -416,13 +416,8 @@ KBUILD_AFLAGS   := -D__ASSEMBLY__
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common -fshort-wchar \
 		   -Werror-implicit-function-declaration \
-<<<<<<< HEAD
-		   -ffast-math -march=armv8.3-a+crypto \
-		   -std=gnu89 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)
-=======
 		   -Wno-format-security -ffast-math \
-		   -std=gnu89
->>>>>>> 6cc67ff79003... [Makefile] Change this for CLANG:
+		   -std=gnu89 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)
 
 ## GCC 5.x.x
 KBUILD_CFLAGS += -fdiagnostics-color=always -fdiagnostics-show-option \
