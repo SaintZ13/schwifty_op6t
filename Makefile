@@ -419,22 +419,32 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -Wno-format-security -ffast-math \
 		   -std=gnu89 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)
 
-## GCC 5.x.x
-KBUILD_CFLAGS += -fdiagnostics-color=always -fdiagnostics-show-option \
-           -Wno-error=implicit-function-declaration -Wno-implicit-function-declaration \
-           -Wno-unused-variable -Wno-unused-function \
-           -Wno-unused-label -Wno-logical-not-parentheses \
-		   -Wno-array-bounds -Wno-error=incompatible-pointer-types \
-           -Wno-incompatible-pointer-types -Wno-pointer-sign \
-           -Wno-parentheses -Wno-nonnull -Wno-missing-attributes -Wno-sizeof-pointer-memaccess
-#G# CC 6.x.x
-KBUILD_CFLAGS += -Wno-shift-overflow 
-#GCC 7.x.x
-KBUILD_CFLAGS += -Wno-duplicate-decl-specifier
-#GCC 9.x.x	
-KBUILD_CFLAGS += -Wno-misleading-indentation -Wno-stringop-overflow \
-		 -Wno-memset-elt-size -Wno-bool-operation -Wno-maybe-uninitialized\
-                 -Wno-switch-unreachable
+KBUILD_CFLAGS +=  -fdiagnostics-color=always -fdiagnostics-show-option \
+                  -Wno-unused-variable -Wno-unused-function \
+                  -Wno-unused-label -Wno-logical-not-parentheses \
+                  -Wno-incompatible-pointer-types -Wno-parentheses \
+                  -Wno-sizeof-pointer-memaccess -Wno-nonnull \
+                  -Wno-error=sizeof-pointer-div -Wno-sizeof-pointer-div
+
+## Lets Seperate GCC Flags from CLANG,
+ifneq ($(cc-name),clang)
+KBUILD_CFLAGS +=  -Wno-error=implicit-function-declaration -Wno-implicit-function-declaration \
+		  -Wno-error=incompatible-pointer-types -Wno-pointer-sign \
+		  --Wno-missing-attributes -Wno-sizeof-pointer-memaccess \
+		  -Wno-shift-overflow
+
+KBUILD_CFLAGS +=  -Wno-switch-unreachable -Wno-maybe-uninitialized \
+                  -Wno-array-bounds -Wno-duplicate-decl-specifier \
+		  -Wno-stringop-overflow -Wno-misleading-indentation \
+		  -Wno-unused-const-variable -Wno-format-truncation \
+		  -Wno-int-in-bool-context -Wno-format-overflow \
+		  -Wno-tautological-compare -Wno-error=misleading-indentation \
+                  -Wno-memset-transposed-args -Wno-bool-compare \
+		  -Wno-logical-not-parentheses -Wno-discarded-array-qualifiers \
+		  -Wno-attributes -Wno-packed-not-aligned -Wno-stringop-truncation \
+		  -mcpu=cortex-a73.cortex-a53 -mtune=cortex-a73.cortex-a53 \
+		  -Wno-bool-operation -Wno-memset-elt-size
+endif
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_AFLAGS_KERNEL :=  $(CFLAGS_KERNEL)
