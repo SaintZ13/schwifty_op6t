@@ -6067,6 +6067,32 @@ static int synaptics_ts_probe(struct i2c_client *client, const struct i2c_device
 		goto err_alloc_data_failed;
 	}
 
+#ifdef CONFIG_SMP
+
+	ts->pm_qos_req_dma.type = PM_QOS_REQ_AFFINE_IRQ;
+	ts->pm_qos_req_dma.irq = ts->irq;;
+
+#endif
+
+	pm_qos_add_request(&ts->pm_qos_req_dma, PM_QOS_CPU_DMA_LATENCY,
+		PM_QOS_DEFAULT_VALUE);
+
+	if (ts->l2pc_cpus_mask) {
+
+		ts->l2pc_cpus_qos.type =
+				PM_QOS_REQ_AFFINE_CORES;
+		cpumask_empty(&ts->l2pc_cpus_qos.cpus_affine);
+		for_each_possible_cpu(cpu) {
+			if ((1 << cpu) & ts->l2pc_cpus_mask)
+				cpumask_set_cpu(cpu, &ts->
+						l2pc_cpus_qos.cpus_affine);
+		}
+
+		pm_qos_add_request(&ts->l2pc_cpus_qos,
+				PM_QOS_CPU_DMA_LATENCY,
+				PM_QOS_DEFAULT_VALUE);
+	}
+
 	ts->client = client;
 	i2c_set_clientdata(client, ts);
 	ts->dev = &client->dev;
@@ -6384,6 +6410,7 @@ static int synaptics_ts_probe(struct i2c_client *client, const struct i2c_device
 		pr_warn("%s: sysfs_create_file failed for wake_gestures\n", __func__);
 	}
 #endif
+
 	TPDTM_DMESG("synaptics_ts_probe 3203: normal end\n");
 
 	bootmode = get_boot_mode();
@@ -6428,6 +6455,7 @@ err_alloc_data_failed:
 	kfree(rmi4_data_s3706);
 	rmi4_data_s3706 = NULL;
 	ts_g = NULL;
+	pm_qos_remove_request(&ts->pm_qos_req_dma);
 	TPD_ERR("synaptics_ts_probe: not normal end\n");
 	return ret;
 }
