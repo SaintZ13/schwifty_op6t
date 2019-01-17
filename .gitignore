@@ -124,11 +124,29 @@ scripts/rkp_cfp/tmp/*
 
 # fetched Android config fragments
 kernel/configs/android-*.cfg
-build/Changelog.txt
-/out
-build/Image.gz-dtb
-out/
-/build
-build/
-upload/
+build/Changelog\.txt
+out
+build/Image\.gz-dtb
 
+upload/
+# Leave out building folders
+build/
+out/
+prebuilts/
+
+# Linux Scripts
+/bin
+/os
+/snippets
+bin/
+os/
+snippets/
+LICENSE
+README.md
+als
+build-clang
+build-kernel
+common
+flash-kernel
+merge-stable
+pi-kernel
