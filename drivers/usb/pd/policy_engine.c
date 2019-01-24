@@ -1328,6 +1328,8 @@ static void usbpd_set_state(struct usbpd *pd, enum usbpd_state next_state)
 				start_usb_peripheral(pd);
 		}
 
+		if (!is_oos())
+			dual_role_instance_changed(pd->dual_role);
 
 		ret = power_supply_get_property(pd->usb_psy,
 				POWER_SUPPLY_PROP_PD_ALLOWED, &val);
