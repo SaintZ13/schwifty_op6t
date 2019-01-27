@@ -275,7 +275,7 @@ static ssize_t hbm_show(struct device *dev,
 
 	hbm_mode = dsi_display_get_hbm_mode(connector);
 
-	if (is_oos)
+	if (is_oos())
 		ret = scnprintf(buf, PAGE_SIZE, "hbm mode = %d\n"
 											"0--hbm mode(off)\n"
 											"1--hbm mode(464)\n"
