@@ -449,13 +449,16 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq, u32 
 			priv->bin.busy_time > CEILING) {
 		val = -1 * level;
 	} else {
-
-		scm_data[0] = level;
-		scm_data[1] = priv->bin.total_time;
-		scm_data[2] = priv->bin.busy_time;
-		scm_data[3] = context_count;
-		__secure_tz_update_entry3(scm_data, sizeof(scm_data),
-					&val, sizeof(val), priv);
+#endif
+			scm_data[0] = level;
+			scm_data[1] = priv->bin.total_time;
+			scm_data[2] = priv->bin.busy_time;
+			scm_data[3] = context_count;
+			__secure_tz_update_entry3(scm_data, sizeof(scm_data),
+						&val, sizeof(val), priv);
+#ifdef CONFIG_SIMPLE_GPU_ALGORITHM
+		}
+#endif
 	}
 	priv->bin.total_time = 0;
 	priv->bin.busy_time = 0;
