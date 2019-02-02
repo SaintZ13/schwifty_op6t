@@ -2844,7 +2844,8 @@ int oneplus_dim_status = 0;
     if (dim_status == oneplus_dim_status) {
 #ifdef CONFIG_EXPOSURE_ADJUSTMENT
 #ifdef EA_UDFP_WORKAROUND
-		if (dim_status == 0 && ea_panel_on())
+	if (ea_panel_on())
+		if (dim_status == 0)
 			ea_panel_udfp_workaround();
 #endif
 #endif
