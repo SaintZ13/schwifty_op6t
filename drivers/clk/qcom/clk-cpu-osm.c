@@ -783,6 +783,19 @@ static int osm_cpufreq_cpu_init(struct cpufreq_policy *policy)
 		if (core_count != parent->max_core_count)
 			table[i].frequency = CPUFREQ_ENTRY_INVALID;
 
+#ifdef CONFIG_BOARD_B1C1
+		/*
+		 * Limit perfcl to 2323200 kHz to save power, since all
+		 * frequencies above that on perfcl use an exponentially higher
+		 * amount of power.
+		 */
+		if (cpumask_intersects(get_cpu_mask(policy->cpu),
+				       cpu_perf_mask)) {
+			if (table[i].frequency > 2323200)
+				break;
+		}
+#endif
+
 		/*
 		 * Two of the same frequencies with the same core counts means
 		 * end of table.
