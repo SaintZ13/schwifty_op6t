@@ -1516,7 +1516,7 @@ static void gesture_judge(struct synaptics_ts_data *ts)
 			gesture = UnkownGestrue;
 			break;
 		}
-
+#ifdef CONFIG_UNIFIED
 if (!is_oos()) {
 	keyCode = UnkownGestrue;
 	// Get key code based on registered gesture.
@@ -1567,6 +1567,7 @@ if (!is_oos()) {
 			break;
 	}
 }
+#endif
 
 	TPD_ERR("detect %s gesture\n", gesture == DouTap ? "(double tap)" :
 			gesture == UpVee ? "(V)" :
@@ -1588,41 +1589,68 @@ if (!is_oos()) {
 
     TPD_DEBUG("gesture suport LeftVee:%d RightVee:%d DouSwip:%d Circle:%d UpVee:%d DouTap:%d\n",\
         LeftVee_gesture,RightVee_gesture,DouSwip_gesture,Circle_gesture,UpVee_gesture,DouTap_gesture);
-
+#ifdef CONFIG_UNIFIED
     if (is_oos()) {
-	if ((gesture == Down2UpSwip && s2w_switch & SWEEP_UP) ||
-		(gesture == Up2DownSwip && s2w_switch & SWEEP_DOWN) ||
-		(gesture == Right2LeftSwip && s2w_switch & SWEEP_LEFT) ||
-		(gesture == Left2RightSwip && s2w_switch & SWEEP_RIGHT) ||
-		(gesture == DouTap && dt2w_switch)) {
+#endif
+		if ((gesture == Down2UpSwip && s2w_switch & SWEEP_UP) ||
+			(gesture == Up2DownSwip && s2w_switch & SWEEP_DOWN) ||
+			(gesture == Right2LeftSwip && s2w_switch & SWEEP_LEFT) ||
+			(gesture == Left2RightSwip && s2w_switch & SWEEP_RIGHT) ||
+			(gesture == DouTap && dt2w_switch)) {
 
-		//wake gestures (requires app)
-		if (gestures_switch) {
-			int gest;
-			switch (gesture) {
-				case DouTap:
-					gest = 5;
-					break;
-				case Down2UpSwip:
-					gest = 3;
-					break;
-				case Up2DownSwip:
-					gest = 4;
-					break;
-				case Right2LeftSwip:
-					gest = 2;
-					break;
-				case Left2RightSwip:
-					gest = 1;
-					break;
+			//wake gestures (requires app)
+			if (gestures_switch) {
+				int gest;
+				switch (gesture) {
+					case DouTap:
+						gest = 5;
+						break;
+					case Down2UpSwip:
+						gest = 3;
+						break;
+					case Up2DownSwip:
+						gest = 4;
+						break;
+					case Right2LeftSwip:
+						gest = 2;
+						break;
+					case Left2RightSwip:
+						gest = 1;
+						break;
+				}
+
+				input_report_rel(gesture_dev, WAKE_GESTURE, gest);
+				input_sync(gesture_dev);
+
+				//traditional s2w using userspace doubletap gesture from OnePlus (checks proximity sensor and vibrates)
+			} else if (DouTap_gesture) {
+				gesture = DouTap;
+				input_report_key(ts->input_dev, keyCode, 1);
+				input_sync(ts->input_dev);
+				input_report_key(ts->input_dev, keyCode, 0);
+				input_sync(ts->input_dev);
+
+				if (haptic_feedback_disable)
+					qpnp_hap_ignore_next_request();
+
+			//traditional s2w if gestures not enabled in OnePlus settings (only turns on screen)
+			} else {
+				input_report_key(ts->input_dev, KEY_POWER, 1);
+				input_sync(ts->input_dev);
+				input_report_key(ts->input_dev, KEY_POWER, 0);
+				input_sync(ts->input_dev);
 			}
+		}	
+		else
+		if((gesture == DouTap && DouTap_gesture)||(gesture == RightVee && RightVee_gesture)\
+			||(gesture == LeftVee && LeftVee_gesture)||(gesture == UpVee && UpVee_gesture)\
+			||(gesture == Circle && Circle_gesture)||(gesture == DouSwip && DouSwip_gesture)\
+			||(gesture == Sgestrue && Sgestrue_gesture)||(gesture == Wgestrue && Wgestrue_gesture)\
+			||(gesture == Mgestrue && Mgestrue_gesture)||(gesture == SingleTap && Single_gesture)) {
 
-			input_report_rel(gesture_dev, WAKE_GESTURE, gest);
-			input_sync(gesture_dev);
+			if (!dt2w_switch && s2w_switch && gesture == DouTap)
+				return;
 
-		//traditional s2w using userspace doubletap gesture from OnePlus (checks proximity sensor and vibrates)
-		} else if (DouTap_gesture) {
-			gesture = DouTap;
 			input_report_key(ts->input_dev, keyCode, 1);
 			input_sync(ts->input_dev);
 			input_report_key(ts->input_dev, keyCode, 0);
@@ -1630,64 +1658,41 @@ if (!is_oos()) {
 
 			if (haptic_feedback_disable)
 				qpnp_hap_ignore_next_request();
-
-		//traditional s2w if gestures not enabled in OnePlus settings (only turns on screen)
-		} else {
-			input_report_key(ts->input_dev, KEY_POWER, 1);
-			input_sync(ts->input_dev);
-			input_report_key(ts->input_dev, KEY_POWER, 0);
-			input_sync(ts->input_dev);
+		}else{
+			ret = i2c_smbus_read_i2c_block_data( ts->client, F12_2D_CTRL20, 3, &(reportbuf[0x0]) );
+			ret = reportbuf[2] & 0x20;
+			if(ret == 0)
+			reportbuf[2] |= 0x02 ;
+			ret = i2c_smbus_write_i2c_block_data( ts->client, F12_2D_CTRL20, 3, &(reportbuf[0x0]) ); //enable gesture
+			if (ret < 0)
+				TPD_ERR("%s :Failed to write report buffer\n", __func__);
 		}
-	} else
-	if((gesture == DouTap && DouTap_gesture)||(gesture == RightVee && RightVee_gesture)\
-		||(gesture == LeftVee && LeftVee_gesture)||(gesture == UpVee && UpVee_gesture)\
-		||(gesture == Circle && Circle_gesture)||(gesture == DouSwip && DouSwip_gesture)\
-		||(gesture == Sgestrue && Sgestrue_gesture)||(gesture == Wgestrue && Wgestrue_gesture)\
-		||(gesture == Mgestrue && Mgestrue_gesture)||(gesture == SingleTap && Single_gesture)) {
-
-		if (!dt2w_switch && s2w_switch && gesture == DouTap)
-			return;
-
-		input_report_key(ts->input_dev, keyCode, 1);
-		input_sync(ts->input_dev);
-		input_report_key(ts->input_dev, keyCode, 0);
-		input_sync(ts->input_dev);
-
-		if (haptic_feedback_disable)
-			qpnp_hap_ignore_next_request();
-	}else{
-		ret = i2c_smbus_read_i2c_block_data( ts->client, F12_2D_CTRL20, 3, &(reportbuf[0x0]) );
-		ret = reportbuf[2] & 0x20;
-		if(ret == 0)
-			reportbuf[2] |= 0x02 ;
-		ret = i2c_smbus_write_i2c_block_data( ts->client, F12_2D_CTRL20, 3, &(reportbuf[0x0]) ); //enable gesture
-		if (ret < 0)
-			TPD_ERR("%s :Failed to write report buffer\n", __func__);
-	}
-	TPD_DEBUG("%s end!\n", __func__);
+		TPD_DEBUG("%s end!\n", __func__);
+#ifdef CONFIG_UNIFIED	
     } else {
-	if((gesture == DouTap && DouTap_gesture)||(gesture == RightVee && RightVee_gesture)
-        	||(gesture == LeftVee && LeftVee_gesture)||(gesture == UpVee && UpVee_gesture)
-        	||(gesture == Circle && Circle_gesture)||(gesture == DouSwip && DouSwip_gesture)
-        	||(gesture == DownVee && DownVee_gesture)||(gesture == Left2RightSwip && Left2RightSwip_gesture)
-        	||(gesture == Right2LeftSwip && Right2LeftSwip_gesture)||(gesture == Up2DownSwip && Up2DownSwip_gesture)
-        	||(gesture == Down2UpSwip && Down2UpSwip_gesture)
-        	||gesture == Sgestrue || gesture == Wgestrue || gesture == Mgestrue){
-		input_report_key(ts->input_dev, keyCode, 1);
-		input_sync(ts->input_dev);
-		input_report_key(ts->input_dev, keyCode, 0);
-		input_sync(ts->input_dev);
-	}else{
-		ret = i2c_smbus_read_i2c_block_data( ts->client, F12_2D_CTRL20, 3, &(reportbuf[0x0]) );
-		ret = reportbuf[2] & 0x20;
-		if(ret == 0)
-			reportbuf[2] |= 0x02 ;
-		ret = i2c_smbus_write_i2c_block_data( ts->client, F12_2D_CTRL20, 3, &(reportbuf[0x0]) ); //enable gesture
-		if (ret < 0)
-			TPD_ERR("%s :Failed to write report buffer\n", __func__);
-	}
-	TPD_DEBUG("%s end!\n", __func__);
+		if((gesture == DouTap && DouTap_gesture)||(gesture == RightVee && RightVee_gesture)
+        		||(gesture == LeftVee && LeftVee_gesture)||(gesture == UpVee && UpVee_gesture)
+        		||(gesture == Circle && Circle_gesture)||(gesture == DouSwip && DouSwip_gesture)
+        		||(gesture == DownVee && DownVee_gesture)||(gesture == Left2RightSwip && Left2RightSwip_gesture)
+        		||(gesture == Right2LeftSwip && Right2LeftSwip_gesture)||(gesture == Up2DownSwip && Up2DownSwip_gesture)
+        		||(gesture == Down2UpSwip && Down2UpSwip_gesture)
+        		||gesture == Sgestrue || gesture == Wgestrue || gesture == Mgestrue){
+			input_report_key(ts->input_dev, keyCode, 1);
+			input_sync(ts->input_dev);
+			input_report_key(ts->input_dev, keyCode, 0);
+			input_sync(ts->input_dev);
+		}else{
+			ret = i2c_smbus_read_i2c_block_data( ts->client, F12_2D_CTRL20, 3, &(reportbuf[0x0]) );
+			ret = reportbuf[2] & 0x20;
+			if(ret == 0)
+				reportbuf[2] |= 0x02 ;
+			ret = i2c_smbus_write_i2c_block_data( ts->client, F12_2D_CTRL20, 3, &(reportbuf[0x0]) ); //enable gesture
+			if (ret < 0)
+				TPD_ERR("%s :Failed to write report buffer\n", __func__);
+		}
+		TPD_DEBUG("%s end!\n", __func__);
     }
+	#endif
 }
 #endif
 /***************end****************/
@@ -2190,14 +2195,18 @@ static ssize_t tp_gesture_write_func(struct file *file, const char __user *buffe
 	Single_gesture = (buf[1] & BIT3)?1:0;   //"Single_gesture"
 	//enable gesture
 	Enable_gesture = (buf[1] & BIT7)?1:0;
-
+#ifdef CONFIG_UNIFIED
 	if (is_oos()) 
+#endif
 		gestures_enable();
+#ifdef CONFIG_UNIFIED
 	else 
 		tp_gesture_set_enable();
+#endif
 	return count;
 }
 
+#ifdef CONFIG_UNIFIED
 #define GESTURE_ATTR(name, flag)\
 static ssize_t name##_enable_read_func(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)\
 {\
@@ -2219,7 +2228,7 @@ static ssize_t name##_enable_write_func(struct file *file, const char __user *us
 		flag = 0;\
 	}\
 	if (is_oos())\
-		gestures_enable(); \
+		gestures_enable();\
 	else\
 		tp_gesture_set_enable();\
 	return count;\
@@ -2230,6 +2239,37 @@ static const struct file_operations name##_enable_proc_fops = {\
 	.open = simple_open,\
 	.owner = THIS_MODULE,\
 };
+#else
+#define GESTURE_ATTR(name, flag)\
+static ssize_t name##_enable_read_func(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)\
+{\
+	int ret = 0;\
+	char page[PAGESIZE];\
+	ret = sprintf(page, "%d\n", flag);\
+	ret = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page));\
+	return ret;\
+}\
+static ssize_t name##_enable_write_func(struct file *file, const char __user *user_buf, size_t count, loff_t *ppos)\
+{\
+	int ret, write_flag = 0;\
+	char page[PAGESIZE] = {0};\
+	ret = copy_from_user(page, user_buf, count);\
+	ret = sscanf(page, "%d", &write_flag);\
+	if (write_flag) {\
+		flag = 1;\
+	} else {\
+		flag = 0;\
+	}\
+	gestures_enable();\
+	return count;\
+}\
+static const struct file_operations name##_enable_proc_fops = {\
+	.write = name##_enable_write_func,\
+	.read =  name##_enable_read_func,\
+	.open = simple_open,\
+	.owner = THIS_MODULE,\
+};
+#endif
 
 GESTURE_ATTR(double_tap, DouTap_gesture);
 GESTURE_ATTR(down_arrow, UpVee_gesture);
@@ -3736,9 +3776,12 @@ static int	synaptics_input_init(struct synaptics_ts_data *ts)
 	set_bit(BTN_TOOL_FINGER, ts->input_dev->keybit);
 #ifdef SUPPORT_GESTURE
 	set_bit(KEY_F4 , ts->input_dev->keybit);//doulbe-tap resume
+#ifdef CONFIG_UNIFIED
 	if (is_oos()) {
+#endif
 		set_bit(KEY_POWER, ts->input_dev->keybit);
 		input_set_capability(ts->input_dev, EV_KEY, KEY_POWER);
+#ifdef CONFIG_UNIFIED
 	} else {
 		set_bit(KEY_DOUBLE_TAP, ts->input_dev->keybit);
 		set_bit(KEY_GESTURE_CIRCLE, ts->input_dev->keybit);
@@ -3755,6 +3798,7 @@ static int	synaptics_input_init(struct synaptics_ts_data *ts)
 		set_bit(KEY_GESTURE_SWIPE_RIGHT, ts->input_dev->keybit);
 		set_bit(KEY_GESTURE_SWIPE_DOWN, ts->input_dev->keybit);
 	}
+#endif
 #endif
 	set_bit(KEY_APPSELECT, ts->input_dev->keybit);
 	set_bit(KEY_BACK, ts->input_dev->keybit);
@@ -4929,7 +4973,9 @@ static int init_synaptics_proc(void)
 	}
 
 #ifdef SUPPORT_GESTURE
+#ifdef CONFIG_UNIFIED
 	if (is_oos()) {
+#endif
 		prEntry_tmp = proc_create( "gesture_enable", 0666, prEntry_tp, &tp_gesture_proc_fops);
 		if(prEntry_tmp == NULL){
 		ret = -ENOMEM;
@@ -4945,6 +4991,7 @@ static int init_synaptics_proc(void)
 			ret = -ENOMEM;
         	TPD_ERR("Couldn't create coordinate\n");
 		}
+#ifdef CONFIG_UNIFIED
 	} else {
 		CREATE_PROC_NODE(prEntry_tp, tp_gesture, 0666);
 		CREATE_PROC_NODE(prEntry_tp, gesture_switch, 0666);
@@ -4965,6 +5012,7 @@ static int init_synaptics_proc(void)
 		CREATE_GESTURE_NODE(letter_m);
 		CREATE_GESTURE_NODE(letter_s);
 	}
+#endif
 #endif
 
 #ifdef SUPPORT_GLOVES_MODE
@@ -6391,10 +6439,14 @@ static int synaptics_ts_probe(struct i2c_client *client, const struct i2c_device
 	return 0;
 
 #ifdef WAKE_GESTURES
+#ifdef CONFIG_UNIFIED
 if (is_oos()) {
+#endif
 	err_gesture_dev:
 		input_free_device(gesture_dev);
+#ifdef CONFIG_UNIFIED
 }
+#endif
 #endif
 exit_init_failed:
 	free_irq(client->irq,ts);
