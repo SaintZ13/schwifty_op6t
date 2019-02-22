@@ -43,6 +43,7 @@
 #include <linux/fb.h>
 #include <linux/pm_qos.h>
 #include <linux/cpufreq.h>
+#include <linux/set_os.h>
 //#include <linux/wakelock.h>
 #include <linux/oneplus/boot_mode.h>
 #include "gf_spi.h"
@@ -655,20 +656,23 @@ static DEVICE_ATTR(screen_state, 0400, screen_state_get, NULL);
 static ssize_t proximity_state_set(struct device *dev,
 	struct device_attribute *attribute, const char *buffer, size_t count)
 {
+#ifdef CONFIG_UNIFIED	
 	struct gf_dev *gf_dev = dev_get_drvdata(dev);
 	int rc, val;
+	if (is_oos()) {
+		rc = kstrtoint(buffer, 10, &val);
+		if (rc)
+			return -EINVAL;
 
-	rc = kstrtoint(buffer, 10, &val);
-	if (rc)
-		return -EINVAL;
+		gf_dev->proximity_state = !!val;
 
-	gf_dev->proximity_state = !!val;
-
-	if (gf_dev->proximity_state) {
-		gf_disable_irq(gf_dev);
-	} else {
-		gf_enable_irq(gf_dev);
+		if (gf_dev->proximity_state) {
+			gf_disable_irq(gf_dev);
+		} else {
+			gf_enable_irq(gf_dev);
+		}
 	}
+#endif
 
 	return count;
 }
@@ -977,7 +981,10 @@ static int gf_probe(struct platform_device *pdev)
 		platform_set_drvdata(pdev, gf_dev);
 	#endif
 
-	dev_set_drvdata(dev, gf_dev);
+#ifdef CONFIG_UNIFIED
+	if (!is_oos())
+		dev_set_drvdata(dev, gf_dev);
+#endif
 
 	status = sysfs_create_group(&gf_dev->spi->dev.kobj,
 			&gf_attribute_group);
