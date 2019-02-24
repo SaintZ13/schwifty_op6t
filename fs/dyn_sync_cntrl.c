@@ -3,8 +3,6 @@
  * 
  * by andip71 (alias Lord Boeffla)
  * 
- * V 2.2 for sdm845 pappschlumpf (Erik Müller)
- * 
  * All credits for original implemenation to faux123
  * 
  */

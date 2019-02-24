@@ -231,8 +231,6 @@ SYSCALL_DEFINE1(syncfs, int, fd)
  */
 int vfs_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
 {
-	struct inode *inode = file->f_mapping->host;
-
 #ifdef CONFIG_DYNAMIC_FSYNC
 	if (likely(dyn_fsync_active && suspend_active))
 		return 0;
@@ -241,7 +239,7 @@ int vfs_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
 	if (!fsync_enabled)
 		return 0;
 #endif
-	
+	struct inode *inode = file->f_mapping->host;
 
 	if (!file->f_op->fsync)
 		return -EINVAL;
@@ -392,11 +390,19 @@ no_async:
 
 SYSCALL_DEFINE1(fsync, unsigned int, fd)
 {
+#ifdef CONFIG_DYNAMIC_FSYNC
+	if (likely(dyn_fsync_active && suspend_active))
+		return 0;
+#endif
 	return do_fsync(fd, 0);
 }
 
 SYSCALL_DEFINE1(fdatasync, unsigned int, fd)
 {
+#ifdef CONFIG_DYNAMIC_FSYNC
+	if (likely(dyn_fsync_active && suspend_active))
+		return 0;
+#endif
 	return do_fsync(fd, 1);
 }
 
@@ -566,5 +572,9 @@ out:
 SYSCALL_DEFINE4(sync_file_range2, int, fd, unsigned int, flags,
 				 loff_t, offset, loff_t, nbytes)
 {
+#ifdef CONFIG_DYNAMIC_FSYNC
+	if (likely(dyn_fsync_active && suspend_active))
+		return 0;
+#endif
 	return sys_sync_file_range(fd, offset, nbytes, flags);
 }
