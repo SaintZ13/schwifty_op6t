@@ -684,6 +684,7 @@ int sched_proc_update_handler(struct ctl_table *table, int write,
 
 	return 0;
 }
+#endif
 
 /*
  * delta /= w
@@ -7614,7 +7615,11 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
 			cpumask_test_cpu(cpu, tsk_cpus_allowed(p)));
 	}
 
-	if (energy_aware() && !(cpu_rq(prev_cpu)->rd->overutilized)) {
+	if (energy_aware()) {
+		rcu_read_lock();
+		new_cpu = select_energy_cpu_brute(p, prev_cpu);
+		rcu_read_unlock();
+		return new_cpu;
 		/*
 		 * If the sync flag is set but ignored, prefer to
 		 * select cpu in the same cluster as current. So
