@@ -684,7 +684,6 @@ int sched_proc_update_handler(struct ctl_table *table, int write,
 
 	return 0;
 }
-#endif
 
 /*
  * delta /= w
@@ -7504,11 +7503,7 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 	}
 
 	rcu_read_lock();
-	/* Curtis, 20180111, ux realm*/
-	if (fbt_env.op_path >= 0)
-		sd = rcu_dereference(per_cpu(sd_ea, fbt_env.op_path));
-	else
-	sd = rcu_dereference(per_cpu(sd_ea, prev_cpu));
+
 	if (!sd) {
 		target_cpu = prev_cpu;
 		goto unlock;
