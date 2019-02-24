@@ -714,8 +714,6 @@ static int load_to_index(u32 load)
 		return NUM_LOAD_INDICES - 1;
 	else
 		return load / sched_load_granule;
-	u32 index = load / sched_load_granule;
-	return min(index, (u32)(NUM_LOAD_INDICES - 1));
 }
 
 static void
