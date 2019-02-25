@@ -25,6 +25,10 @@
 #include <linux/project_info.h>
 #include <linux/pm_wakeup.h>
 #include "../sde/sde_trace.h"
+
+#ifdef CONFIG_KLAPSE
+#include "../sde/klapse.h"
+#endif
 /**
  * topology is currently defined by a set of following 3 values:
  * 1. num of layer mixers
@@ -697,23 +701,20 @@ static int dsi_panel_update_backlight(struct dsi_panel *panel,
 	}
 
 	dsi = &panel->mipi_device;
+	
 	if (panel->is_hbm_enabled){
 		return 0;
 		}
-    if (panel->bl_config.bl_high2bit){
-	if(HBM_flag==true){
-		return 0;
-		}
-	else{
+	if (panel->bl_config.bl_high2bit)
 		rc = mipi_dsi_dcs_set_display_brightness_samsung(dsi, bl_lvl);
-		}
-    } else
-	rc = mipi_dsi_dcs_set_display_brightness(dsi, bl_lvl);
+	else
+		rc = mipi_dsi_dcs_set_display_brightness(dsi, bl_lvl);
 	if (rc < 0)
 		pr_err("failed to update dcs backlight:%d\n", bl_lvl);
 
 	return rc;
 }
+
 
 int dsi_panel_set_backlight(struct dsi_panel *panel, u32 bl_lvl)
 {
@@ -742,6 +743,10 @@ int dsi_panel_set_backlight(struct dsi_panel *panel, u32 bl_lvl)
 		pr_err("Backlight type(%d) not supported\n", bl->type);
 		rc = -ENOTSUPP;
 	}
+	
+#ifdef CONFIG_KLAPSE
+	set_rgb_slider(bl_lvl);
+#endif
 
 	return rc;
 }
@@ -1906,7 +1911,9 @@ error:
 static int dsi_panel_parse_misc_features(struct dsi_panel *panel,
 				     struct device_node *of_node)
 {
-	panel->ulps_enabled = true;
+	panel->ulps_enabled =
+		of_property_read_bool(of_node, "qcom,ulps-enabled");
+
 	pr_info("%s: ulps feature %s\n", __func__,
 		(panel->ulps_enabled ? "enabled" : "disabled"));
 
@@ -1922,8 +1929,8 @@ static int dsi_panel_parse_misc_features(struct dsi_panel *panel,
 	panel->sync_broadcast_en = of_property_read_bool(of_node,
 			"qcom,cmd-sync-wait-broadcast");
 
-	panel->lp11_init = false;
-
+	panel->lp11_init = of_property_read_bool(of_node,
+			"qcom,mdss-dsi-lp11-init");
 	return 0;
 }
 
