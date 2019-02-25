@@ -420,10 +420,11 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -std=gnu89 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)
 
 KBUILD_CFLAGS +=  -fdiagnostics-color=always -fdiagnostics-show-option \
-                  -Wno-unused-variable -Wno-unused-function \
+                  -Wno-unused-variable -Wno-unused-function -Wno-unused-result \
                   -Wno-unused-label -Wno-logical-not-parentheses \
                   -Wno-incompatible-pointer-types -Wno-parentheses \
                   -Wno-sizeof-pointer-memaccess -Wno-nonnull \
+				  -Wno-maybe-uninitialized -Wno-address \
                   -Wno-error=sizeof-pointer-div -Wno-sizeof-pointer-div
 
 KBUILD_CPPFLAGS := -D__KERNEL__
