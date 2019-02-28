@@ -96,7 +96,7 @@ static int cam_icp_subdev_close(struct v4l2_subdev *sd,
 
 	mutex_lock(&g_icp_dev.icp_lock);
 	if (g_icp_dev.open_cnt <= 0) {
-		CAM_ERR(CAM_ICP, "ICP subdev is already closed");
+		CAM_DBG(CAM_ICP, "ICP subdev is already closed");
 		rc = -EINVAL;
 		goto end;
 	}
@@ -236,6 +236,7 @@ static struct platform_driver cam_icp_driver = {
 		.name = "cam_icp",
 		.owner = THIS_MODULE,
 		.of_match_table = cam_icp_dt_match,
+		.suppress_bind_attrs = true,
 	},
 };
 

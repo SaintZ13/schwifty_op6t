@@ -61,52 +61,6 @@ static int __cam_req_mgr_setup_payload(struct cam_req_mgr_core_workq *workq)
 }
 
 /**
- * __cam_req_mgr_reset_req_tbl()
- *
- * @brief : Initialize req table data
- * @in_q  : request queue pointer
- *
- * @return: 0 for success, negative for failure
- *
- */
-static int __cam_req_mgr_print_req_tbl(struct cam_req_mgr_req_data *req)
-{
-	int                           rc = 0;
-	int32_t                       i = 0;
-	struct cam_req_mgr_req_queue *in_q = req->in_q;
-	struct cam_req_mgr_req_tbl   *req_tbl = req->l_tbl;
-
-	if (!in_q || !req_tbl) {
-		CAM_WARN(CAM_CRM, "NULL pointer %pK %pK", in_q, req_tbl);
-		return -EINVAL;
-	}
-	CAM_DBG(CAM_CRM, "in_q %pK %pK %d", in_q, req_tbl, req_tbl->num_slots);
-	mutex_lock(&req->lock);
-	for (i = 0; i < in_q->num_slots; i++) {
-		CAM_DBG(CAM_CRM, "IN_Q %d: idx %d, red_id %lld", i,
-			in_q->slot[i].idx, CRM_GET_REQ_ID(in_q, i));
-	}
-
-	while (req_tbl != NULL) {
-		for (i = 0; i < req_tbl->num_slots; i++) {
-			CAM_DBG(CAM_CRM, "idx= %d, map= %x, state= %d",
-				req_tbl->slot[i].idx,
-				req_tbl->slot[i].req_ready_map,
-				req_tbl->slot[i].state);
-		}
-		CAM_DBG(CAM_CRM,
-			"TBL:id= %d, pd=%d cnt=%d mask=%x skip=%d num_slt= %d",
-			req_tbl->id, req_tbl->pd, req_tbl->dev_count,
-			req_tbl->dev_mask, req_tbl->skip_traverse,
-			req_tbl->num_slots);
-		req_tbl = req_tbl->next;
-	}
-	mutex_unlock(&req->lock);
-
-	return rc;
-}
-
-/**
  * __cam_req_mgr_find_pd_tbl()
  *
  * @brief    : Find pipeline delay based table pointer which matches delay
@@ -1148,12 +1102,12 @@ static void __cam_req_mgr_destroy_subdev(
 /**
  * __cam_req_mgr_destroy_link_info()
  *
- * @brief    : Cleans up the mem allocated while linking
- * @link     : pointer to link, mem associated with this link is freed
+ * @brief    : Unlinks all devices on the link
+ * @link     : pointer to link
  *
  * @return   : returns if unlink for any device was success or failure
  */
-static int __cam_req_mgr_destroy_link_info(struct cam_req_mgr_core_link *link)
+static int __cam_req_mgr_disconnect_link(struct cam_req_mgr_core_link *link)
 {
 	int32_t                                 i = 0;
 	struct cam_req_mgr_connected_device    *dev;
@@ -1168,20 +1122,34 @@ static int __cam_req_mgr_destroy_link_info(struct cam_req_mgr_core_link *link)
 	/* Using device ops unlink devices */
 	for (i = 0; i < link->num_devs; i++) {
 		dev = &link->l_dev[i];
-		if (dev != NULL) {
-			link_data.dev_hdl = dev->dev_hdl;
-			if (dev->ops && dev->ops->link_setup) {
-				rc = dev->ops->link_setup(&link_data);
-				if (rc)
-					CAM_ERR(CAM_CRM,
-						"Unlink failed dev_hdl %d",
-						dev->dev_hdl);
-			}
-			dev->dev_hdl = 0;
-			dev->parent = NULL;
-			dev->ops = NULL;
+		if (dev == NULL)
+			continue;
+
+		link_data.dev_hdl = dev->dev_hdl;
+		if (dev->ops && dev->ops->link_setup) {
+			rc = dev->ops->link_setup(&link_data);
+			if (rc)
+				CAM_ERR(CAM_CRM,
+					"Unlink failed dev name %s hdl %x",
+					dev->dev_info.name,
+					dev->dev_hdl);
 		}
+		dev->dev_hdl = 0;
+		dev->parent = NULL;
+		dev->ops = NULL;
 	}
+
+	return rc;
+}
+
+/**
+ * __cam_req_mgr_destroy_link_info()
+ *
+ * @brief    : Cleans up the mem allocated while linking
+ * @link     : pointer to link, mem associated with this link is freed
+ */
+static void __cam_req_mgr_destroy_link_info(struct cam_req_mgr_core_link *link)
+{
 	__cam_req_mgr_destroy_all_tbl(&link->req.l_tbl);
 	__cam_req_mgr_reset_in_q(&link->req);
 	link->req.num_tbl = 0;
@@ -1190,8 +1158,6 @@ static int __cam_req_mgr_destroy_link_info(struct cam_req_mgr_core_link *link)
 	link->pd_mask = 0;
 	link->num_devs = 0;
 	link->max_delay = 0;
-
-	return rc;
 }
 
 /**
@@ -1215,9 +1181,9 @@ static struct cam_req_mgr_core_link *__cam_req_mgr_reserve_link(
 		return NULL;
 	}
 
-	if (session->num_links >= MAX_LINKS_PER_SESSION) {
+	if (session->num_links >= MAXIMUM_LINKS_PER_SESSION) {
 		CAM_ERR(CAM_CRM, "Reached max links %d per session limit %d",
-			session->num_links, MAX_LINKS_PER_SESSION);
+			session->num_links, MAXIMUM_LINKS_PER_SESSION);
 		return NULL;
 	}
 
@@ -1252,7 +1218,7 @@ static struct cam_req_mgr_core_link *__cam_req_mgr_reserve_link(
 
 	mutex_lock(&session->lock);
 	/*  Loop through and find a free index */
-	for (i = 0; i < MAX_LINKS_PER_SESSION; i++) {
+	for (i = 0; i < MAXIMUM_LINKS_PER_SESSION; i++) {
 		if (!session->links[i]) {
 			CAM_DBG(CAM_CRM,
 				"Free link index %d found, num_links=%d",
@@ -1262,7 +1228,7 @@ static struct cam_req_mgr_core_link *__cam_req_mgr_reserve_link(
 		}
 	}
 
-	if (i == MAX_LINKS_PER_SESSION) {
+	if (i == MAXIMUM_LINKS_PER_SESSION) {
 		CAM_ERR(CAM_CRM, "Free link index not found");
 		goto error;
 	}
@@ -1323,7 +1289,7 @@ static void __cam_req_mgr_unreserve_link(
 		return;
 	}
 
-	for (i = 0; i < MAX_LINKS_PER_SESSION; i++) {
+	for (i = 0; i < MAXIMUM_LINKS_PER_SESSION; i++) {
 		if (session->links[i] == link)
 			session->links[i] = NULL;
 	}
@@ -1335,7 +1301,7 @@ static void __cam_req_mgr_unreserve_link(
 		 * of only having 2 links in a given session
 		 */
 		session->sync_mode = CAM_REQ_MGR_SYNC_MODE_NO_SYNC;
-		for (i = 0; i < MAX_LINKS_PER_SESSION; i++) {
+		for (i = 0; i < MAXIMUM_LINKS_PER_SESSION; i++) {
 			if (session->links[i])
 				session->links[i]->sync_link = NULL;
 		}
@@ -2184,27 +2150,24 @@ static int __cam_req_mgr_unlink(struct cam_req_mgr_core_link *link)
 {
 	int rc;
 
-	mutex_lock(&link->lock);
 	spin_lock_bh(&link->link_state_spin_lock);
 	link->state = CAM_CRM_LINK_STATE_IDLE;
+	spin_unlock_bh(&link->link_state_spin_lock);
 
+	rc = __cam_req_mgr_disconnect_link(link);
+	if (rc)
+		CAM_ERR(CAM_CORE,
+			"Unlink for all devices was not successful");
+
+	mutex_lock(&link->lock);
 	/* Destroy timer of link */
 	crm_timer_exit(&link->watchdog);
-	spin_unlock_bh(&link->link_state_spin_lock);
-	__cam_req_mgr_print_req_tbl(&link->req);
-
-	/* Destroy workq payload data */
-	kfree(link->workq->task.pool[0].payload);
-	link->workq->task.pool[0].payload = NULL;
 
 	/* Destroy workq of link */
 	cam_req_mgr_workq_destroy(&link->workq);
 
 	/* Cleanup request tables and unlink devices */
-	rc = __cam_req_mgr_destroy_link_info(link);
-	if (rc)
-		CAM_ERR(CAM_CORE,
-			"Unlink for all devices was not successful");
+	__cam_req_mgr_destroy_link_info(link);
 
 	/* Free memory holding data of linked devs */
 	__cam_req_mgr_destroy_subdev(&(link->l_dev));
@@ -2241,13 +2204,12 @@ int cam_req_mgr_destroy_session(
 		goto end;
 
 	}
-	mutex_lock(&cam_session->lock);
 	if (cam_session->num_links) {
 		CAM_DBG(CAM_CRM, "destroy session %x num_active_links %d",
 			ses_info->session_hdl,
 			cam_session->num_links);
 
-		for (i = 0; i < MAX_LINKS_PER_SESSION; i++) {
+		for (i = 0; i < MAXIMUM_LINKS_PER_SESSION; i++) {
 			link = cam_session->links[i];
 
 			if (!link)
@@ -2259,7 +2221,6 @@ int cam_req_mgr_destroy_session(
 		}
 	}
 	list_del(&cam_session->entry);
-	mutex_unlock(&cam_session->lock);
 	mutex_destroy(&cam_session->lock);
 	kfree(cam_session);
 
@@ -2487,7 +2448,8 @@ int cam_req_mgr_sync_config(
 	}
 
 	if ((sync_info->num_links < 0) ||
-		(sync_info->num_links > MAX_LINKS_PER_SESSION)) {
+		(sync_info->num_links >
+		MAX_LINKS_PER_SESSION)) {
 		CAM_ERR(CAM_CRM, "Invalid num links %d", sync_info->num_links);
 		return -EINVAL;
 	}
@@ -2629,6 +2591,13 @@ int cam_req_mgr_link_control(struct cam_req_mgr_link_control *control)
 
 	if (!control) {
 		CAM_ERR(CAM_CRM, "Control command is NULL");
+		rc = -EINVAL;
+		goto end;
+	}
+
+	if (control->num_links > MAX_LINKS_PER_SESSION) {
+		CAM_ERR(CAM_CRM, "Invalid number of links %d",
+			control->num_links);
 		rc = -EINVAL;
 		goto end;
 	}
