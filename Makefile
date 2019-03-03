@@ -416,17 +416,13 @@ KBUILD_AFLAGS   := -D__ASSEMBLY__
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common -fshort-wchar \
 		   -Werror-implicit-function-declaration \
-		   -Wno-misleading-indentation -Wno-maybe-uninitialized -Wno-unused-function -Wno-address \
-		   -Wno-format-security -ffast-math \
+		   -Wno-format-security \
 		   -std=gnu89 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)
+		   
+KBUILD_CFLAGS +=  -fdiagnostics-color=always -fdiagnostics-show-option
 
-KBUILD_CFLAGS +=  -fdiagnostics-color=always -fdiagnostics-show-option \
-                  -Wno-unused-variable -Wno-unused-function -Wno-unused-result \
-                  -Wno-unused-label -Wno-logical-not-parentheses \
-                  -Wno-incompatible-pointer-types -Wno-parentheses \
-                  -Wno-sizeof-pointer-memaccess -Wno-nonnull \
-				  -Wno-maybe-uninitialized -Wno-address \
-                  -Wno-error=sizeof-pointer-div -Wno-sizeof-pointer-div
+# Optimization for sdm845
+KBUILD_CFLAGS	+= -mcpu=cortex-a75.cortex-a55+crc+crypto -Wno-attribute-alias
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_AFLAGS_KERNEL :=  $(CFLAGS_KERNEL)
