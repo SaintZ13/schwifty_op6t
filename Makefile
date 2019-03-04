@@ -262,7 +262,7 @@ HDK		:= ${HOME}/gcc/
 HDK_TC		:= ${HOME}/gcc/bin/
 ARCH		:= arm64
 SUBARCH		:= arm64
-CROSS_COMPILE	:= $(HDK_TC)aarch64-cortex_a75-linux-android-
+CROSS_COMPILE	:= $(HDK_TC)aarch64-linux-gnu-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -315,12 +315,12 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 ARM_ARCH_OPT := \
 	$(call cc-option,-march=armv8.2-a+crypto+fp16+aes+sha2+sha3+sm4,) \
 	-mtune=cortex-a75.cortex-a55 -mcpu=cortex-a75.cortex-a55+crypto+aes+sha2+sha3+sm4 \
-	--param l1-cache-line-size=64 --param l1-cache-size=64 --param l2-cache-size=256 
+	--param l1-cache-line-size=64 --param l1-cache-size=64 --param l2-cache-size=256
 
 # Optional Flags
 GEN_OPT_FLAGS := \
  -DNDEBUG -g0 -pipe \
- -fomit-frame-pointer 
+ -fomit-frame-pointer
 
 HOSTCC       = $(CCACHE) gcc
 HOSTCXX      = $(CCACHE) g++
@@ -386,7 +386,7 @@ NOSTDINC_FLAGS  =
 CFLAGS_MODULE   =
 AFLAGS_MODULE   =
 LDFLAGS_MODULE  = --strip-debug
-CFLAGS_KERNEL	= $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT) 
+CFLAGS_KERNEL	= $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)
 AFLAGS_KERNEL	= $(CFLAGS_KERNEL)
 LDFLAGS_vmlinux =
 
@@ -804,7 +804,7 @@ else
 ifdef CONFIG_PROFILE_ALL_BRANCHES
 KBUILD_CFLAGS	+= -O2 $(call cc-disable-warning,maybe-uninitialized,)
 else
-KBUILD_CFLAGS   += -O3 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT) 
+KBUILD_CFLAGS   += -O3 $(GEN_OPT_FLAGS) $(ARM_ARCH_OPT)
 endif
 endif
 
