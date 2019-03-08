@@ -150,3 +150,6 @@ common
 flash-kernel
 merge-stable
 pi-kernel
+
+# Wireguard
+net/wireguard/
