@@ -19,9 +19,11 @@ ifeq ($(CONFIG_RELOCATABLE), y)
 # for relative relocs, since this leads to better Image compression
 # with the relocation offsets always being zero.
 ifdef CONFIG_LD_GOLD
-LDFLAGS_vmlinux		+= -shared -Bsymbolic -z notext -z norelro \
+LDFLAGS_vmlinux		+= -Bsymbolic \
 			$(call ld-option, --no-apply-dynamic-relocs)
 else
+LDFLAGS_vmlinux		+= -shared -Bsymbolic -z notext -z norelro \
+			$(call ld-option, --no-apply-dynamic-relocs)
 endif
 endif
 
