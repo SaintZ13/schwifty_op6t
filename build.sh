@@ -26,13 +26,13 @@
 	dc=schwifty_defconfig
 
 # Source Path to kernel tree
-	k=$HOME/op6-rebase
+	k=$HOME/op6-eas
 
 # Source Path to clean(empty) out folder
 	co=$k/out
 
 # Compile Path to out 
-	o="O=$HOME/op6-rebase/out"
+	o="O=$HOME/op6-eas/out"
 
 # Source Path to compiled Image.gz-dtb
 	i=$k/out/arch/arm64/boot/Image.gz-dtb
@@ -47,11 +47,11 @@
 	zp=$k/build/
 	
 # Destination Path for uploading kernel zip
-	zu=$k/upload/
+#	zu=$k/upload/
 
 # Kernel zip Name
 ##############################
-	kn=Schwifty_Kernel_OP6T_vR1.zip
+#	kn=Schwifty_Kernel_OP6T_vR1.zip
 
 ############################################################
 # Cleanup
