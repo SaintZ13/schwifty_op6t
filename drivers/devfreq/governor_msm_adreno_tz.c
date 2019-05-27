@@ -450,10 +450,6 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 	priv->bin.total_time += stats.total_time;
 #if 1
 	// scale busy time up based on adrenoboost parameter, only if MIN_BUSY exceeded...
-<<<<<<< HEAD
-	if ((unsigned int)(priv->bin.busy_time + stats.busy_time) >= MIN_BUSY) {
-		priv->bin.busy_time += stats.busy_time * (1 + (adrenoboost*3)/2);
-=======
 //	if ((unsigned int)(priv->bin.busy_time + stats.busy_time) >= MIN_BUSY && adrenoboost) {
 	if (loc_adrenoboost) {
 		if (loc_adrenoboost == 1) {
@@ -464,7 +460,6 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 		} else {
 			priv->bin.busy_time += (unsigned int)((stats.busy_time * ( 1 + loc_adrenoboost ) * lvl_multiplicator_map_3[ last_level ]  * 8 ) / (lvl_divider_map_3[ last_level ] * 10));
 		}
->>>>>>> ab26347f0107... gpu: devfreq: adrenoboost v2.2
 	} else {
 		priv->bin.busy_time += stats.busy_time;
 	}
