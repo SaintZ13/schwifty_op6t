@@ -30,7 +30,7 @@
 #include <linux/set_os.h>
 
 #ifdef CONFIG_KLAPSE
-#include "../sde/klapse.h"
+#include <linux/klapse.h>
 #endif
 
 /**
