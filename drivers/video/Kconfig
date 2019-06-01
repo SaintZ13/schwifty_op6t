@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 config DRM_MSM
 	tristate "MSM DRM"
@@ -148,16 +149,3 @@ config DRM_SDE_RSC
           can vote their active state. Any active request from any client
           avoids the display core power collapse. A client can also register
           for display core power collapse events on rsc.
-
-config EXPOSURE_ADJUSTMENT
-	bool "Enable exposure adjustment driver"
-	depends on DRM_MSM
-	help
-          The EXPOSURE ADJUSTMENT provides exposure adjustment function without change
-          panel hardware brightness to avoid PWM flicker on OLED devices.
-		  
-config KLAPSE
-    bool CONFIG_KLAPSE
-    default n
-    help
-        A simple rgb dynamic lapsing module similar to LineageOS' livedisplay
